@@ -18,8 +18,7 @@ CREATE TABLE Transaction (
 
     PRIMARY KEY (id),
 
-    CONSTRAINT FK_Customer_Id FOREIGN KEY (customer_id)
-    REFERENCES Customer(id)
+    FOREIGN KEY (customer_id) REFERENCES Customer(id)
 );
 
 CREATE TYPE product_type AS ENUM (
@@ -55,11 +54,9 @@ CREATE TABLE Transaction_Item (
 
     PRIMARY KEY (id),
 
-    CONSTRAINT FK_Transaction_Id FOREIGN KEY (transaction_id)
-    REFERENCES Transaction(id),
+    FOREIGN KEY (transaction_id) REFERENCES Transaction(id),
 
-    CONSTRAINT FK_Product_Id FOREIGN KEY (product_id)
-    REFERENCES Product(id)
+    FOREIGN KEY (product_id) REFERENCES Product(id)
 );
 
 CREATE TABLE Employee (
