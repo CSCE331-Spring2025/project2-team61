@@ -5,6 +5,8 @@ import os
 import random as r
 from datetime import datetime, timedelta
 
+r.seed(61)
+
 SQL_DIR = "gen-sql"
 
 customer_table_name = "customer"
