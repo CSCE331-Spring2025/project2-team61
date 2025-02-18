@@ -96,7 +96,6 @@ products = [
     Product("misc", "Bottled Water", 200, 200),
     Product("misc", "Canned Soda", 250, 180),
     Product("topping", "Pearl Topping", 50, 500),
-    Product("topping", "Aloe Vera Topping", 60, 450),
     Product("special_item", "Limited Edition Tea", 700, 30),
 ]
 
