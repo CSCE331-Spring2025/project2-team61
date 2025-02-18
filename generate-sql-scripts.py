@@ -22,7 +22,7 @@ def flip_coin(p=0.5):
     return r.random() < p
 
 
-generate_customers_script_name = "generate-customers.sql" # test
+generate_customers_script_name = "generate-customers.sql" #Testing
 
 
 def generate_phonenumber(l=10):
