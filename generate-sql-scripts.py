@@ -22,7 +22,7 @@ def flip_coin(p=0.5):
     return r.random() < p
 
 
-generate_customers_script_name = "generate-customers.sql" #Testing
+generate_customers_script_name = "generate-customers.sql"
 
 
 def generate_phonenumber(l=10):
@@ -93,7 +93,6 @@ products = [
     ("misc", "Bottled Water", 200, 200),
     ("misc", "Canned Soda", 250, 180),
     ("topping", "Pearl Topping", 50, 500),
-    ("topping", "Aloe Vera Topping", 60, 450),
     ("special_item", "Limited Edition Tea", 700, 30),
 ]
 
@@ -123,8 +122,8 @@ def wrap_quotes(s):
     return f"'{s}'"
 
 
-def generate_datetime(year_from="2020"):
-    start = datetime.strptime(f"1/1/{year_from}", "%m/%d/%Y")
+def generate_datetime(year_from="2024"):
+    start = datetime.strptime(f"2/12/{year_from}", "%m/%d/%Y")
     delta = datetime.now() - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     rand_second = r.randrange(int_delta)
@@ -136,7 +135,7 @@ def generate_tip(lower=0, upper=500):
     return r.randint(lower, upper)
 
 
-transaction_count = 10_000
+transaction_count = 38_000
 
 with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file:
     file.write(
@@ -152,6 +151,7 @@ with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file
 
     values = []
     products_bought = []
+    overall_total_for_year = 0  # Need to get about 1 million for the year in sales
 
     for transaction_id in range(1, transaction_count + 1):
         use_customer_id = flip_coin(0.75)
@@ -188,6 +188,7 @@ with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file
             f"{str(r.randint(1, customer_count)) if use_customer_id else 'NULL'}"
             f")"
         )
+        overall_total_for_year += total
 
     file.write(",\n\t".join(values))
     file.write(";\n\n")
@@ -206,6 +207,8 @@ with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file
         )
     )
     file.write(";")
+    print(f"Overall total for year: {overall_total_for_year}")
+
 
 
 delete_all_script_name = "delete-all.sql"
