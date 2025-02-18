@@ -4,6 +4,7 @@ import hashlib
 import os
 import random as r
 from datetime import datetime, timedelta
+from product import products
 
 r.seed(61)
 
@@ -73,31 +74,6 @@ with open(os.path.join(SQL_DIR, generate_employees_script_name), "w") as file:
     file.write(";")
 
 generate_products_script_name = "generate-products.sql"
-
-# TODO: maybe make these dicts or their own (data)classes for __str__
-products = [
-    ("milk_tea", "Classic Milk Tea", 500, 100),
-    ("milk_tea", "Okinawa Milk Tea", 550, 80),
-    ("fruit_tea", "Mango Fruit Tea", 450, 90),
-    ("fruit_tea", "Strawberry Fruit Tea", 470, 85),
-    ("brewed_tea", "Earl Grey Tea", 300, 120),
-    ("brewed_tea", "Jasmine Green Tea", 320, 110),
-    ("fresh_milk", "Fresh Taro Milk", 600, 75),
-    ("fresh_milk", "Matcha Fresh Milk", 620, 70),
-    ("ice_blended", "Mocha Ice Blended", 650, 60),
-    ("ice_blended", "Caramel Ice Blended", 670, 55),
-    ("tea_mojito", "Lemon Tea Mojito", 550, 50),
-    ("tea_mojito", "Passionfruit Tea Mojito", 580, 45),
-    ("creama", "Oolong Crema", 520, 65),
-    ("creama", "Black Tea Crema", 530, 60),
-    ("ice_cream", "Vanilla Ice Cream", 400, 150),
-    ("ice_cream", "Chocolate Ice Cream", 420, 140),
-    ("misc", "Bottled Water", 200, 200),
-    ("misc", "Canned Soda", 250, 180),
-    ("topping", "Pearl Topping", 50, 500),
-    ("topping", "Aloe Vera Topping", 60, 450),
-    ("special_item", "Limited Edition Tea", 700, 30),
-]
 
 with open(os.path.join(SQL_DIR, generate_products_script_name), "w") as file:
     file.write(
@@ -169,7 +145,7 @@ with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file
         for _ in range(product_count):
             product_id = r.randint(1, len(products))
             quantity = r.randint(1, 3)
-            subtotal = products[product_id - 1][2] * quantity
+            subtotal = products[product_id - 1].price * quantity
             products_bought.append(
                 {
                     "transaction_id": transaction_id,
