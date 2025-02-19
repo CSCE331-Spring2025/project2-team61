@@ -18,40 +18,24 @@ ORDER BY total_sales DESC
 LIMIT 10;
 
 -- Query 4. menu item inventory SQ4
-SELECT product.name, COUNT(supply.name) AS inventory_count
+SELECT product.name, product.inventory AS inventory_count
 FROM product
-JOIN supply ON product.product_type = supply.supply_type
-GROUP BY product.name
 ORDER BY inventory_count DESC;
 
--- Query 5. best of the worst SQ5
-WITH weekly_sales AS (
-    SELECT DATE_TRUNC('week', time) AS week, DATE(time) AS day, SUM(price) AS daily_sales
-    FROM transaction
-    GROUP BY week, day
-),
-min_sales AS (
-    SELECT week, day, daily_sales
-    FROM weekly_sales
-    WHERE (week, daily_sales) IN (
-        SELECT week, MIN(daily_sales)
-        FROM weekly_sales
-        GROUP BY week
-    )
-)
-SELECT min_sales.week, min_sales.day, min_sales.daily_sales, product.name AS top_seller
-FROM min_sales
-JOIN transaction_item ON transaction_item.transaction_id = (
-    SELECT transaction_id FROM transaction WHERE DATE(time) = min_sales.day ORDER BY price DESC LIMIT 1
-)
-JOIN product ON transaction_item.product_id = product.id;
+-- Query 5. top products by sales
+SELECT product.name AS top_seller, SUM(transaction_item.subtotal) AS sales
+FROM product
+JOIN transaction_item ON transaction_item.product_id = product.id
+GROUP BY product.name
+ORDER BY sales DESC
+LIMIT 10;
 
 -- Query 6. payment type. total sales
 SELECT payment_type, COUNT(*) AS transaction_count, SUM(price) AS total_sales
 FROM transaction
 GROUP BY payment_type;
 
--- Query 7. top products
+-- Query 7. top products by total sold
 SELECT product.name, COUNT(transaction_item.product_id) AS total_sold
 FROM transaction_item
 JOIN product ON transaction_item.product_id = product.id
@@ -60,7 +44,7 @@ ORDER BY total_sold DESC
 LIMIT 10;
 
 -- Query 8. customers with most transactions
-SELECT customer_id, COUNT(*) AS transaction_count
+SELECT customer_id,COUNT(*) AS transaction_count
 FROM transaction
 WHERE customer_id IS NOT NULL
 GROUP BY customer_id
@@ -72,9 +56,10 @@ SELECT AVG(price) AS avg_order_value
 FROM transaction;
 
 -- Query 10. best employee by transaction count
-SELECT employee_id, COUNT(*) AS transaction_count
+SELECT employee_id, employee.name as employee_name, COUNT(*) AS transaction_count
 FROM transaction
-GROUP BY employee_id
+JOIN employee ON transaction.employee_id = employee.id
+GROUP BY employee_id, employee_name
 ORDER BY transaction_count DESC
 LIMIT 1;
 

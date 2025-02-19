@@ -15,10 +15,13 @@ CREATE TABLE Transaction (
     price           INT NOT NULL,
     tip             INT NOT NULL,
     customer_id     INT,
+    employee_id     INT NOT NULL,
 
     PRIMARY KEY (id),
 
-    FOREIGN KEY (customer_id) REFERENCES Customer(id)
+    FOREIGN KEY (customer_id) REFERENCES Customer(id),
+
+    FOREIGN KEY (employee_id) REFERENCES Employee(id)
 );
 
 CREATE TYPE product_type AS ENUM (

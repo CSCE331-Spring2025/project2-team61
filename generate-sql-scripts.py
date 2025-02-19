@@ -4,6 +4,7 @@ import hashlib
 import os
 import random as r
 from datetime import datetime, timedelta
+
 from product import products
 
 r.seed(61)
@@ -119,20 +120,62 @@ transaction_count = 38_000
 with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file:
     file.write(
         f"INSERT INTO {transaction_table_name} "
-        f"(payment_type, "
-        f"cc_digits, "
-        f"time, "
-        f"price, "
-        f"tip, "
-        f"customer_id) "
-        f"VALUES\n\t"
+        "(payment_type, cc_digits,  time, price, tip, customer_id, employee_id) "
+        "VALUES\n\t"
     )
 
     values = []
     products_bought = []
     overall_total_for_year = 0  # Need to get about 1 million for the year in sales
 
-    for transaction_id in range(1, transaction_count + 1):
+    peek_day_min_sales = 10_000_00
+    peek_days = ["05/07/2024", "08/19/2024"]
+
+    for date in peek_days:
+        peek_day_sales = 0
+
+        transaction_id = 1
+        while peek_day_sales < peek_day_min_sales:
+            use_customer_id = flip_coin(0.75)
+
+            payment_type = payment_types[r.randint(0, 3)]
+
+            product_count = r.randint(1, 5)
+
+            subtotal = 0
+            total = 0
+
+            for _ in range(product_count):
+                product_id = r.randint(1, len(products))
+                quantity = r.randint(1, 3)
+                subtotal = products[product_id - 1].price * quantity
+                products_bought.append(
+                    {
+                        "transaction_id": transaction_id,
+                        "product_id": product_id,
+                        "quantity": quantity,
+                        "subtotal": subtotal,
+                    }
+                )
+                total += subtotal
+
+            values.append(
+                f"("
+                f"'{payment_type}', "
+                f"{(wrap_quotes(generate_cc_digits())) if payment_type == 'card' else 'NULL'}, "
+                f"'{date}', "
+                f"{total}, "
+                f"{generate_tip()}, "
+                f"{str(r.randint(1, customer_count)) if use_customer_id else 'NULL'}, "
+                f"{r.randint(1, len(employee_names))}"
+                f")"
+            )
+
+            transaction_id += 1
+            peek_day_sales += total
+            overall_total_for_year += total
+
+    for transaction_id in range(len(values) + 1, transaction_count + 1):
         use_customer_id = flip_coin(0.75)
 
         # TODO: make credit card more common payment type
@@ -160,11 +203,12 @@ with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file
         values.append(
             f"("
             f"'{payment_type}', "
-            f"{(wrap_quotes(generate_cc_digits()) + ', ') if payment_type == 'card' else 'NULL, '}"
+            f"{wrap_quotes(generate_cc_digits()) if payment_type == 'card' else 'NULL'}, "
             f"'{generate_datetime()}', "
             f"{total}, "
             f"{generate_tip()}, "
-            f"{str(r.randint(1, customer_count)) if use_customer_id else 'NULL'}"
+            f"{str(r.randint(1, customer_count)) if use_customer_id else 'NULL'}, "
+            f"{r.randint(1, len(employee_names))}"
             f")"
         )
         overall_total_for_year += total
@@ -189,17 +233,16 @@ with open(os.path.join(SQL_DIR, generate_transactions_script_name), "w") as file
     print(f"Overall total for year: {overall_total_for_year}")
 
 
-
 delete_all_script_name = "delete-all.sql"
 
 # NOTE: order matters
 table_names = [
-    transaction_item_table_name,
-    transaction_table_name,
-    customer_table_name,
     employee_table_name,
     product_table_name,
     supply_table_name,
+    transaction_item_table_name,
+    transaction_table_name,
+    customer_table_name,
 ]
 
 with open(os.path.join(SQL_DIR, delete_all_script_name), "w") as file:
