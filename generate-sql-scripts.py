@@ -237,12 +237,12 @@ delete_all_script_name = "delete-all.sql"
 
 # NOTE: order matters
 table_names = [
-    employee_table_name,
-    product_table_name,
-    supply_table_name,
     transaction_item_table_name,
     transaction_table_name,
     customer_table_name,
+    employee_table_name,
+    product_table_name,
+    supply_table_name,
 ]
 
 with open(os.path.join(SQL_DIR, delete_all_script_name), "w") as file:
