@@ -72,7 +72,7 @@ LIMIT 1;
 
 -- Query 12. low stock items
 SELECT name, inventory
-FROM supply
+FROM product
 WHERE inventory < 50
 ORDER BY inventory ASC;
 
