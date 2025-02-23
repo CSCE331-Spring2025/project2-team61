@@ -1,3 +1,4 @@
+import java.sql.*;
 import javax.swing.*;
 import java.awt.Font;
 
@@ -20,6 +21,8 @@ public class LoginScreen extends JFrame {
         int windowHeight = FrameStyle.screenHeight;
         int loginButtonYPosition = windowHeight / 2;
 
+        Db db = new Db();
+
         JTextField usernameField = new JTextField(50);
         usernameField.setFont(textFieldFont);
         usernameField.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition - 2 * textFieldHeight, textFieldWidth, textFieldHeight);
@@ -32,9 +35,33 @@ public class LoginScreen extends JFrame {
         loginButton.setFont(loginButtonFont);
         loginButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
 
-        add(usernameField);
-        add(passwordField);
-        add(loginButton);
+        loginButton.addActionListener(e -> {
+            String name = usernameField.getText();
+            String password = passwordField.getText();
+            String passwordHash = PasswordHash.hash(password);
+
+            System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name, password, passwordHash);
+
+            ResultSet rs = db.query("SELECT COUNT(*) FROM employee WHERE name='%s' AND password='%s';", name, passwordHash);
+
+            try {
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+
+                    if (count == 1) {
+                        System.out.println("Successfully Logged In!");
+                    } else {
+                        System.out.println("Username or Password does not match");
+                    }
+                }
+            } catch (SQLException se) {
+                System.out.println(se);
+            }
+        });
+
+        this.add(usernameField);
+        this.add(passwordField);
+        this.add(loginButton);
 
         setSize(windowWidth, windowHeight);
     }
