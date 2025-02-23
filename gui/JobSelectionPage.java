@@ -5,7 +5,6 @@ public class JobSelectionPage extends JFrame {
 
     static final int textFieldWidth = 200;
     static final int textFieldHeight = 50;
-
     static final Font selectionButtonFont = new Font("Arial", Font.BOLD, 32);
 
     public JobSelectionPage() {
@@ -29,20 +28,30 @@ public class JobSelectionPage extends JFrame {
         job2Button.setBounds(windowWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
 
         job1Button.addActionListener(e -> {
-            System.out.printf("Cashier Selected!\n");
+            System.out.println("Cashier Selected!");
             this.dispose();
             new CashierPage().setVisible(true);
         });
 
-        // job2Button.addActionListener(e -> {
-        //     System.out.printf("Manager Selected!\n");
-        //     this.dispose();
-        //     new ManagerPage().setVisible(true);
-        // });
+        job2Button.addActionListener(e -> {
+            System.out.println("Manager Selected!");
+            this.dispose();
+            new ManagerPage().setVisible(true);
+        });
 
         add(job1Button);
         add(job2Button);
 
         setSize(windowWidth, windowHeight);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // Centers the window on the screen
+    }
+
+    // Main method for testing
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JobSelectionPage jobSelectionPage = new JobSelectionPage();
+            jobSelectionPage.setVisible(true);
+        });
     }
 }
