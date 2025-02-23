@@ -37,7 +37,7 @@ public class LoginScreen extends JFrame {
 
         loginButton.addActionListener(e -> {
             String name = usernameField.getText();
-            String password = passwordField.getText();
+            String password = new String(passwordField.getPassword());
             String passwordHash = PasswordHash.hash(password);
 
             System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name, password, passwordHash);

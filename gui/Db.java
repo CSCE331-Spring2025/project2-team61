@@ -40,6 +40,7 @@ public class Db {
         String databaseURL = String.format(databaseURLFormat, databaseName);
 
         try {
+            Class.forName("org.postgresql.Driver"); // Load the PostgreSQL JDBC driver
             conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword);
         } catch (Exception e) {
             e.printStackTrace();
