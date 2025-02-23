@@ -37,6 +37,11 @@ public class LoginScreen extends JFrame {
         loginButton.setFont(loginButtonFont);
         loginButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
 
+        JButton exitButton = new JButton("Exit");
+        exitButton.setFont(loginButtonFont);
+        exitButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition*5/4, textFieldWidth, textFieldHeight);
+
+
         JLabel errorLabel = new JLabel("");
         errorLabel.setFont(errorLabelFont);
         errorLabel.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition + textFieldHeight + 10, textFieldWidth + 80, textFieldHeight);
@@ -70,9 +75,15 @@ public class LoginScreen extends JFrame {
             }
         });
 
+        exitButton.addActionListener(e -> {
+            System.out.printf("Exiting GUI...\n");
+            this.dispose();
+        });
+
         this.add(usernameField);
         this.add(passwordField);
         this.add(loginButton);
+        this.add(exitButton);
         this.add(errorLabel);
 
         setSize(windowWidth, windowHeight);
