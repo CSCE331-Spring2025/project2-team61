@@ -80,7 +80,7 @@ public class CashierPage extends JFrame {
                            "#D7D982", "#81D8D0", "#AE82D9", "#D99E82",
                            "#D7D982", "#81D8D0", "#AE82D9", "#D99E82"};
         String[] labels = {"Classic Milk Tea", "Okinawa Milk Tea", "Mango Fruit Tea", "Strawberry Fruit Tea", 
-                        "Earl Gray Tea", "Jasmine Green Tea", "Fresh Taro Milk", "Matcha Fresh Milk", 
+                        "Earl Grey Tea", "Jasmine Green Tea", "Fresh Taro Milk", "Matcha Fresh Milk", 
                         "Mocha Ice Blended", "Caramel Ice Blended", "Lemon Tea Mojito", "Passionfruit Tea Mojito"}; //This isnt all the menu items
         for (int i = 0; i < 12; i++) {
             JButton button = new JButton();
