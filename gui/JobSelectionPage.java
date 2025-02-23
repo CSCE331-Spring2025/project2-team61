@@ -8,8 +8,11 @@ public class JobSelectionPage extends JFrame {
 
     static final Font selectionButtonFont = new Font("Arial", Font.BOLD, 32);
 
-    public JobSelectionPage() {
+    Db db;
+
+    public JobSelectionPage(Db db) {
         super("Job Selection");
+        this.db = db;
         FrameStyle.StyleFrame(this);
         initializeComponents();
     }
@@ -31,7 +34,7 @@ public class JobSelectionPage extends JFrame {
         job1Button.addActionListener(e -> {
             System.out.printf("Cashier Selected!\n");
             this.dispose();
-            new CashierPage().setVisible(true);
+            new CashierPage(db).setVisible(true);
         });
 
         // job2Button.addActionListener(e -> {

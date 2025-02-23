@@ -8,16 +8,16 @@ import java.sql.SQLException;
 // import java.util.Map;
 
 public class CashierPage extends JFrame {
-    Db database;
+    Db db;
 
-    public CashierPage() {
+    public CashierPage(Db db) {
         super("Cashier Page");
+        this.db = db;
         FrameStyle.StyleFrame(this);
         initializeComponents();
     }
 
     public void initializeComponents() {
-        database = new Db();
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
@@ -156,7 +156,7 @@ public class CashierPage extends JFrame {
 
     // Method to add an item to the order list and update total
     private void addItemToOrder(JPanel itemsPanel, String item, JLabel totalLabel) {
-        ResultSet rs = database.query("SELECT price FROM product WHERE name='%s';", item);
+        ResultSet rs = db.query("SELECT price FROM product WHERE name='%s';", item);
     
         try {
             if (rs.next()) {
@@ -197,15 +197,15 @@ public class CashierPage extends JFrame {
     // Logout handler
     private void handleLogout() {
         dispose();
-        JFrame jobSelectionFrame = new JobSelectionPage();
+        JFrame jobSelectionFrame = new JobSelectionPage(db);
         jobSelectionFrame.setVisible(true);
     }
 
     // Main method to run the CashierPage for testing
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            CashierPage frame = new CashierPage();
-            frame.setVisible(true);
-        });
-    }
+    // public static void main(String[] args) {
+    //     SwingUtilities.invokeLater(() -> {
+    //         CashierPage frame = new CashierPage();
+    //         frame.setVisible(true);
+    //     });
+    // }
 }
