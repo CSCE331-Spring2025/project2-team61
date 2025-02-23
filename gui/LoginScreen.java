@@ -50,6 +50,9 @@ public class LoginScreen extends JFrame {
 
                     if (count == 1) {
                         System.out.println("Successfully Logged In!");
+                        this.dispose();
+                        JobSelectionPage nextFrame = new JobSelectionPage();
+                        nextFrame.setVisible(true);
                     } else {
                         System.out.println("Username or Password does not match");
                     }
