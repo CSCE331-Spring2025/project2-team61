@@ -27,6 +27,10 @@ public class JobSelectionPage extends JFrame {
         job2Button.setFont(selectionButtonFont);
         job2Button.setBounds(windowWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
 
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setFont(selectionButtonFont);
+        logoutButton.setBounds(windowWidth / 2 - textFieldWidth + 50, loginButtonYPosition*5/4, textFieldWidth, textFieldHeight);
+
         job1Button.addActionListener(e -> {
             System.out.println("Cashier Selected!");
             this.dispose();
@@ -39,8 +43,15 @@ public class JobSelectionPage extends JFrame {
             new ManagerPage().setVisible(true);
         });
 
+        logoutButton.addActionListener(e -> {
+            System.out.printf("Logout Successful!\n");
+            this.dispose();
+            new LoginScreen().setVisible(true);
+        });
+
         add(job1Button);
         add(job2Button);
+        add(logoutButton);
 
         setSize(windowWidth, windowHeight);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
