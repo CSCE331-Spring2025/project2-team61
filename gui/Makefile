@@ -8,7 +8,7 @@ SRC_FILES = $(wildcard $(SRC_DIR)/*.java)
 CLASS_FILES = $(patsubst $(SRC_DIR)/%.java, $(SRC_DIR)/%.class, $(SRC_FILES))
 
 run: $(CLASS_FILES)
-	java -cp ".:$(PSQL_JAR)" LoginScreen
+	java -cp ".:$(PSQL_JAR)" Main
 
 $(SRC_DIR)/%.class: $(SRC_DIR)/%.java
 	javac $<

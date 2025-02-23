@@ -1,6 +1,7 @@
 import java.sql.*;
 import javax.swing.*;
 import java.awt.Font;
+import java.awt.Color;
 
 public class LoginScreen extends JFrame {
     static final int textFieldWidth = 220;
@@ -8,6 +9,7 @@ public class LoginScreen extends JFrame {
 
     static final Font textFieldFont = new Font("Arial", Font.PLAIN, 24);
     static final Font loginButtonFont = new Font("Arial", Font.BOLD, 32);
+    static final Font errorLabelFont = new Font("Arial", Font.PLAIN, 18);
 
     public LoginScreen() {
         super("Login");
@@ -35,6 +37,11 @@ public class LoginScreen extends JFrame {
         loginButton.setFont(loginButtonFont);
         loginButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
 
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setFont(errorLabelFont);
+        errorLabel.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition + textFieldHeight + 10, textFieldWidth + 80, textFieldHeight);
+        errorLabel.setForeground(Color.RED);
+
         loginButton.addActionListener(e -> {
             String name = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -54,7 +61,8 @@ public class LoginScreen extends JFrame {
                         JobSelectionPage nextFrame = new JobSelectionPage();
                         nextFrame.setVisible(true);
                     } else {
-                        System.out.println("Username or Password does not match");
+                        System.out.println("Incorrect Username or Password");
+                        errorLabel.setText("Incorrect Username or Password");
                     }
                 }
             } catch (SQLException se) {
@@ -65,6 +73,7 @@ public class LoginScreen extends JFrame {
         this.add(usernameField);
         this.add(passwordField);
         this.add(loginButton);
+        this.add(errorLabel);
 
         setSize(windowWidth, windowHeight);
     }

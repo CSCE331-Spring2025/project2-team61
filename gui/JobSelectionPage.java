@@ -28,6 +28,18 @@ public class JobSelectionPage extends JFrame {
         job2Button.setFont(selectionButtonFont);
         job2Button.setBounds(windowWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
 
+        job1Button.addActionListener(e -> {
+            System.out.printf("Cashier Selected!\n");
+            this.dispose();
+            new CashierPage().setVisible(true);
+        });
+
+        // job2Button.addActionListener(e -> {
+        //     System.out.printf("Manager Selected!\n");
+        //     this.dispose();
+        //     new ManagerPage().setVisible(true);
+        // });
+
         add(job1Button);
         add(job2Button);
 
