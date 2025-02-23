@@ -2,3 +2,5 @@ gen-sql/
 __pycache__/
 
 *.class
+
+start_vnc.sh
