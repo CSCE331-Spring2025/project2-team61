@@ -4,24 +4,33 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-// import java.util.HashMap;
-// import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class CashierPage extends JFrame {
     Db db;
+    int employeeId;
+    
+    // productId -> quantity
+    HashMap<Integer, Integer> quantities;
 
-    public CashierPage(Db db) {
+    private double currentTotal;
+
+    ArrayList<JFrame> childFrames;
+
+    public CashierPage(Db db, int employeeId) {
         super("Cashier Page");
         this.db = db;
+        this.employeeId = employeeId;
+        this.quantities = new HashMap<>();
+        this.currentTotal = 0.0; 
+        this.childFrames = new ArrayList<>();
         FrameStyle.StyleFrame(this);
         initializeComponents();
     }
 
     public void initializeComponents() {
-
         JPanel mainPanel = new JPanel(new BorderLayout());
-
-
 
         //////////////////// LEFT PANEL ////////////////////
         JPanel leftPanel = new JPanel(new BorderLayout());
@@ -40,13 +49,6 @@ public class CashierPage extends JFrame {
         payButton.setForeground(Color.WHITE);
         payButton.setPreferredSize(new Dimension(FrameStyle.screenWidth / 3, 100)); // idk why it wont be a wider pay button here
         leftPanel.add(payButton, BorderLayout.SOUTH);
-
-        payButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // addTransactionToDatabase(); // TODO, need to make a function to add transaction to database
-            }
-        });
 
         // ITEMS PANEL
         JPanel itemsPanel = new JPanel(new GridLayout(0, 1, 5, 5));
@@ -67,48 +69,111 @@ public class CashierPage extends JFrame {
 
         leftPanel.add(contentPanel, BorderLayout.SOUTH);
 
-        
+        payButton.addActionListener(e -> {
+            // TODO: Make more efficient with one insert or a transaction
+            ResultSet rs = db.query("INSERT INTO transaction (price, employee_id) VALUES (%d, %d) RETURNING id;", (int)(currentTotal * 100), employeeId);
+                
+            int transactionId = 0;
+            try {
+                if (rs.next()) {
+                    transactionId = rs.getInt("id");
+                } else {
+                    System.err.println("Insert transaction query did not return id");
+                    System.exit(1);
+                }
+            } catch (SQLException se) {
+                System.err.println(se);
+                System.exit(1);
+            }
 
+            for (Integer pId : quantities.keySet()) {
+                Integer quantity = quantities.get(pId);
 
+                db.query("INSERT INTO transaction_item (transaction_id, product_id, quantity, subtotal) SELECT %d, %d, %d, %d * price FROM product WHERE id = %d RETURNING id;", transactionId, pId, quantity, quantity, pId);
 
+                System.out.printf("Transaction placed, total: %.2f\n", currentTotal);
+            }
+
+            // TODO: Add dialog that transaction complete, query for payment type, cc digits, tip
+
+            quantities.clear();
+
+            currentTotal = 0.0;
+            totalPriceLabel.setText("Total Price: $" + String.format("%.2f", currentTotal));
+
+            itemsPanel.removeAll();
+            itemsPanel.revalidate();
+            itemsPanel.repaint();
+        });
 
         //////////////////// CENTER PANEL (Menu Buttons) ////////////////////
+        String[] productTypes = new String[12];
+        String[] productTypesReadable = new String[12];
+        ResultSet rs = db.query("SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_type.oid = pg_enum.enumtypid WHERE pg_type.typname = 'product_type';");
+
+        try {
+            for (int i = 0; rs.next() && i < productTypes.length; i++) {
+                String productType = rs.getString("enumlabel");
+                productTypes[i] = productType;
+                productTypesReadable[i] = snakeToReadable(productType);
+            }
+        } catch (SQLException se) {
+            System.err.println(se);
+            System.exit(1);
+        } 
 
         JPanel menuPanel = new JPanel(new GridLayout(4, 3, 5, 5));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         String[] colors = {"#D7D982", "#81D8D0", "#AE82D9", "#D99E82",
                            "#D7D982", "#81D8D0", "#AE82D9", "#D99E82",
                            "#D7D982", "#81D8D0", "#AE82D9", "#D99E82"};
-        String[] labels = {"Classic Milk Tea", "Okinawa Milk Tea", "Mango Fruit Tea", "Strawberry Fruit Tea", 
-                        "Earl Grey Tea", "Jasmine Green Tea", "Fresh Taro Milk", "Matcha Fresh Milk", 
-                        "Mocha Ice Blended", "Caramel Ice Blended", "Lemon Tea Mojito", "Passionfruit Tea Mojito"}; //This isnt all the menu items
         for (int i = 0; i < 12; i++) {
             JButton button = new JButton();
             button.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // idk why this isnt creating a border
             button.setBackground(Color.decode(colors[i]));
             button.setFont(new Font("Arial", Font.BOLD, 30));
             button.setForeground(Color.WHITE);
-            button.setText(labels[i]);
+            button.setText(productTypesReadable[i]);
             button.setHorizontalTextPosition(SwingConstants.CENTER);
             button.setVerticalTextPosition(SwingConstants.BOTTOM);
-            button.setIcon(new ImageIcon("path/to/coffee_icon.png")); // Replace with actual icon path for a coffee picture - TODO
+            button.setIcon(new ImageIcon("path/to/coffee_icon.png")); // Replace with actual icon path for a coffee picture - TODO:
             button.setOpaque(true);
             button.setBorderPainted(false);
 
             // Add ActionListener to each button
-            final String item = labels[i];
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    addItemToOrder(itemsPanel, item, totalPriceLabel);
-                }
+            final String productType = productTypes[i];
+            final String productTypeReadable = productTypesReadable[i];
+            button.addActionListener(e -> {
+                if (productType == null) 
+                    return;
+
+                Consumer<ProductEntry> addItemSelected = pe -> {
+                    if (!quantities.containsKey(pe.id)) {
+                        quantities.put(pe.id, 1);
+                    } else {
+                        quantities.put(pe.id, quantities.get(pe.id) + 1);
+                    }
+
+                    JLabel itemLabel = new JLabel(pe.name + " $" + String.format("%.2f", pe.price)); // Format as decimal
+                    itemLabel.setFont(new Font("Arial", Font.PLAIN, 50));
+
+                    itemsPanel.add(itemLabel, 0); // Insert at the top
+
+                    currentTotal += pe.price;
+                    totalPriceLabel.setText("Total Price: $" + String.format("%.2f", currentTotal));
+        
+                    itemsPanel.revalidate();
+                    itemsPanel.repaint();
+                };
+                
+                ItemList itemSelectionFrame = new ItemList(db, productType, productTypeReadable, addItemSelected);
+                itemSelectionFrame.setAlwaysOnTop(true);
+
+                itemSelectionFrame.setVisible(true);
+                childFrames.add(itemSelectionFrame);
             });
             menuPanel.add(button);
         }
-
-
-
-
 
         //////////////////// RIGHT PANEL ////////////////////
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -152,60 +217,38 @@ public class CashierPage extends JFrame {
         add(mainPanel);
     }
 
-
-
-    // Method to add an item to the order list and update total
-    private void addItemToOrder(JPanel itemsPanel, String item, JLabel totalLabel) {
-        ResultSet rs = db.query("SELECT price FROM product WHERE name='%s';", item);
-    
-        try {
-            if (rs.next()) {
-                int priceInt = rs.getInt(1); 
-                double price = priceInt / 100.0;
-                
-                JLabel itemLabel = new JLabel(item + " $" + String.format("%.2f", price)); // Format as decimal
-                itemLabel.setFont(new Font("Arial", Font.PLAIN, 50));
-                
-                itemsPanel.add(itemLabel, 0); // Insert at the top
-    
-                double currentTotal = Double.parseDouble(totalLabel.getText().replace("Total Price: $", ""));
-                currentTotal += price;
-                totalLabel.setText("Total Price: $" + String.format("%.2f", currentTotal));
-    
-                itemsPanel.revalidate();
-                itemsPanel.repaint();
-
-                // addTransactionItemToDatabase(item); // TODO, need to make a function to add transaction_item to database  
-
-                /* Becuase we have a quantity column in our transaction_item table,
-                 * we can't really add a transaction_item to the database until we know the quantity
-                 * of that same item in this transaction, which means we are likely going to have to make
-                 * an array for every type of menu item, and increment it for every time that it is ordered.
-                 * Then, when the pay button is pressed, we can add all of the transaction_items to the database
-                 * with their respective quantities. Or, we can change the transaction_item table to not have
-                 * the quantity column, and instead have the quantity column in the transaction table.
-                 * I don't know which one is better, so I'm going to leave it as is for now.
-                 */
-            }
-        } catch (SQLException se) {
-            System.out.println("SQL Exception: " + se.getMessage());
-        } catch (NumberFormatException nfe) {
-            System.out.println("Number Format Exception: " + nfe.getMessage());
-        }
-    }
-
     // Logout handler
     private void handleLogout() {
         dispose();
-        JFrame jobSelectionFrame = new JobSelectionPage(db);
+        for (JFrame c : childFrames) {
+            c.dispose();
+        }
+        JFrame jobSelectionFrame = new JobSelectionPage(db, employeeId);
         jobSelectionFrame.setVisible(true);
     }
 
+    private String snakeToReadable(String s) {
+        if (s == null)
+            return null;
+        s = s.replace('_', ' ');
+
+        s = s.substring(0, 1).toUpperCase() + s.substring(1);
+        
+        for (int i = 1; i < s.length() - 1; i++) {
+            if (s.charAt(i) == ' ') {
+                s = s.substring(0, i + 1) + s.substring(i + 1, i + 2).toUpperCase() + s.substring(i + 2);
+            }
+        }
+
+        return s;
+    }
+
     // Main method to run the CashierPage for testing
-    // public static void main(String[] args) {
-    //     SwingUtilities.invokeLater(() -> {
-    //         CashierPage frame = new CashierPage();
-    //         frame.setVisible(true);
-    //     });
-    // }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Db db = new Db();
+            CashierPage frame = new CashierPage(db, 1);
+            frame.setVisible(true);
+        });
+    }
 }

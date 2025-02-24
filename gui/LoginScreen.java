@@ -54,21 +54,19 @@ public class LoginScreen extends JFrame {
 
             System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name, password, passwordHash);
 
-            ResultSet rs = db.query("SELECT COUNT(*) FROM employee WHERE name='%s' AND password='%s';", name, passwordHash);
+            ResultSet rs = db.query("SELECT id FROM employee WHERE name='%s' AND password='%s';", name, passwordHash);
 
             try {
                 if (rs.next()) {
-                    int count = rs.getInt(1);
+                    int employeeId = rs.getInt(1);
 
-                    if (count == 1) {
-                        System.out.println("Successfully Logged In!");
-                        this.dispose();
-                        JobSelectionPage nextFrame = new JobSelectionPage(db);
-                        nextFrame.setVisible(true);
-                    } else {
-                        System.out.println("Incorrect Username or Password");
-                        errorLabel.setText("Incorrect Username or Password");
-                    }
+                    System.out.println("Successfully Logged In!");
+                    this.dispose();
+                    JobSelectionPage nextFrame = new JobSelectionPage(db, employeeId);
+                    nextFrame.setVisible(true);
+                } else {
+                    System.out.println("Incorrect Username or Password");
+                    errorLabel.setText("Incorrect Username or Password");
                 }
             } catch (SQLException se) {
                 System.out.println(se);

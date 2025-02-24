@@ -31,6 +31,7 @@ public class Db {
             Statement stmt = conn.createStatement();
             return stmt.executeQuery(sqlStatement);
         } catch (Exception e) {
+            System.out.println(e);
             System.out.printf("Error executing query:\n%s\n", sqlStatement);
             return null;
         }

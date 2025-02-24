@@ -10,9 +10,12 @@ public class JobSelectionPage extends JFrame {
 
     Db db;
 
-    public JobSelectionPage(Db db) {
+    int employeeId;
+
+    public JobSelectionPage(Db db, int employeeId) {
         super("Job Selection");
         this.db = db;
+        this.employeeId = employeeId;
         FrameStyle.StyleFrame(this);
         initializeComponents();
     }
@@ -38,7 +41,7 @@ public class JobSelectionPage extends JFrame {
         job1Button.addActionListener(e -> {
             System.out.printf("Cashier Selected!\n");
             this.dispose();
-            new CashierPage(db).setVisible(true);
+            new CashierPage(db, employeeId).setVisible(true);
         });
 
         // job2Button.addActionListener(e -> {
