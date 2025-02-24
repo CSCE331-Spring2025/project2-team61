@@ -39,6 +39,10 @@ public class ManagerPage extends JFrame {
             }
         });
 
+        // TODO: Add Employee
+
+        // TODO: Add Report
+
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
         logoutNavButton.addActionListener(new ActionListener() {
@@ -106,9 +110,18 @@ public class ManagerPage extends JFrame {
         JScrollPane priceScrollPane = new JScrollPane(priceTable);
         pricePanel.add(priceScrollPane, BorderLayout.CENTER);
 
+        // Todo: Add Employee Panel
+        // Functionality: Add and remove employee
+        // Update DB
+
+        // Todo: Add Report Panel
+
         // Add both panels to the card panel
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
+
+        // TODO: Add Employee panel and Report panel
+
         add(cardPanel, BorderLayout.CENTER);
 
         // Connect to database and load data
