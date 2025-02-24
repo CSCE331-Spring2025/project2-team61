@@ -5,6 +5,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import java.util.ArrayList;
+
+
 
 public class ManagerPage extends JFrame {
     private JPanel cardPanel;
@@ -12,6 +15,8 @@ public class ManagerPage extends JFrame {
     private JTable inventoryTable, priceTable;
     private DefaultTableModel tableModel, priceTableModel;
     private Connection connection;
+    private ReportPanel reportPanel;
+
 
     public ManagerPage() {
         super("Manager Inventory Interface");
@@ -42,6 +47,12 @@ public class ManagerPage extends JFrame {
         // TODO: Add Employee
 
         // TODO: Add Report
+        JButton reportNavButton = new JButton("Reports");
+        reportNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+        reportNavButton.addActionListener(e -> {
+            loadReportData();
+            cardLayout.show(cardPanel, "report");
+        });
 
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
@@ -53,6 +64,7 @@ public class ManagerPage extends JFrame {
 
         navbarPanel.add(inventoryNavButton);
         navbarPanel.add(priceNavButton);
+        navbarPanel.add(reportNavButton);
         navbarPanel.add(logoutNavButton);
         add(navbarPanel, BorderLayout.NORTH);
 
@@ -115,7 +127,16 @@ public class ManagerPage extends JFrame {
         // Update DB
 
         // Todo: Add Report Panel
+        reportPanel = new ReportPanel();
+        reportPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        reportPanel.setBackground(Color.decode("#E0F6F1"));
 
+        // Add panels to card layout
+        cardPanel.add(inventoryPanel, "inventory");
+        cardPanel.add(pricePanel, "price");
+        cardPanel.add(reportPanel, "report");
+
+        add(cardPanel, BorderLayout.CENTER);
         // Add both panels to the card panel
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
@@ -128,6 +149,7 @@ public class ManagerPage extends JFrame {
         connectToDatabase();
         loadInventory();
         loadPriceTable();
+        loadReportData();
 
         // Show inventory view by default
         cardLayout.show(cardPanel, "inventory");
@@ -182,6 +204,24 @@ public class ManagerPage extends JFrame {
                     "Edit Price"
                 });
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private void loadReportData() {
+        ArrayList<String> itemNames = new ArrayList<>();
+        ArrayList<Integer> inventoryCounts = new ArrayList<>();
+
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT name, inventory FROM product ORDER BY inventory DESC;");
+            
+            while (rs.next()) {
+                itemNames.add(rs.getString("name"));
+                inventoryCounts.add(rs.getInt("inventory"));
+            }
+
+            reportPanel.updateData(itemNames, inventoryCounts);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -371,5 +411,68 @@ public class ManagerPage extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ManagerPage::new);
+    }
+}
+class ReportPanel extends JPanel {
+    private ArrayList<String> itemNames;
+    private ArrayList<Integer> inventoryCounts;
+
+    public ReportPanel() {
+        this.itemNames = new ArrayList<>();
+        this.inventoryCounts = new ArrayList<>();
+    }
+
+    public void updateData(ArrayList<String> itemNames, ArrayList<Integer> inventoryCounts) {
+        this.itemNames = itemNames;
+        this.inventoryCounts = inventoryCounts;
+        repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (itemNames.isEmpty() || inventoryCounts.isEmpty()) return;
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int width = getWidth() - 100;
+        int height = getHeight() - 150; 
+        int maxInventory = inventoryCounts.stream().max(Integer::compare).orElse(1);
+
+        int barWidth = Math.max(30, width / (itemNames.size() * 2)); 
+        int gap = barWidth / 2;
+
+        Font barValueFont = new Font("Arial", Font.BOLD, 12); 
+        Font labelFont = new Font("Arial", Font.PLAIN, 12);   
+
+        for (int i = 0; i < itemNames.size(); i++) {
+            int x = 80 + i * (barWidth + gap);
+            int barHeight = (int) ((inventoryCounts.get(i) / (double) maxInventory) * height);
+
+            int textYPosition = Math.max(height - barHeight - 5, 15); 
+
+            g2d.setColor(Color.MAGENTA);
+            g2d.fillRect(x, height - barHeight, barWidth, barHeight);
+
+            g2d.setColor(Color.BLACK);
+            g2d.setFont(barValueFont);
+            g2d.drawString(String.valueOf(inventoryCounts.get(i)), x + (barWidth / 4), textYPosition);
+
+            // Draw Rotated Label
+            g2d.setFont(labelFont);
+            drawRotatedText(g2d, itemNames.get(i), x + (barWidth / 2), height + 40);
+        }
+    }
+
+    private void drawRotatedText(Graphics2D g2d, String text, int x, int y) {
+        FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        
+        g2d.translate(x, y);
+        g2d.rotate(Math.toRadians(-45));
+        g2d.drawString(text, -textWidth / 2, 0);
+        g2d.rotate(Math.toRadians(45)); 
+        g2d.translate(-x, -y); 
     }
 }
