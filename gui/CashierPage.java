@@ -127,6 +127,9 @@ public class CashierPage extends JFrame {
         String[] colors = {"#D7D982", "#81D8D0", "#AE82D9", "#D99E82",
                            "#D7D982", "#81D8D0", "#AE82D9", "#D99E82",
                            "#D7D982", "#81D8D0", "#AE82D9", "#D99E82"};
+        String[] pictures = {"soda.png", "iced-coffee.png", "lemonade.png", "drink.png", 
+                            "coffee.png", "coffee-cup.png", "coffee.png", "coffee-cup.png", 
+                            "cold-coffee.png", "cold-coffee.png", "cuba-libre.png", "drink.png"};
         for (int i = 0; i < 12; i++) {
             JButton button = new JButton();
             button.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // idk why this isnt creating a border
@@ -136,7 +139,7 @@ public class CashierPage extends JFrame {
             button.setText(productTypesReadable[i]);
             button.setHorizontalTextPosition(SwingConstants.CENTER);
             button.setVerticalTextPosition(SwingConstants.BOTTOM);
-            button.setIcon(new ImageIcon("path/to/coffee_icon.png")); // Replace with actual icon path for a coffee picture - TODO:
+            button.setIcon(new ImageIcon("icons/" + pictures[i]));
             button.setOpaque(true);
             button.setBorderPainted(false);
 
