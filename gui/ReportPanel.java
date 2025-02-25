@@ -3,8 +3,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 class ReportPanel extends JPanel {
-    private ArrayList<String> itemNames;
-    private ArrayList<Integer> inventoryCounts;
+    private ArrayList<String> itemNames; //keeping these for when we update the data
+    private ArrayList<Integer> inventoryCounts; //keeping these for when we update the data
 
     public ReportPanel() {
         this.itemNames = new ArrayList<>();
@@ -30,7 +30,7 @@ class ReportPanel extends JPanel {
         // Add northPanel to centerPanel with weight
         gbc.gridx = 0;
         gbc.gridy = 0; // these two mean the top left corner (or in this case, top row)
-        
+
         gbc.weightx = 1.0; // Full width
         gbc.weighty = 0.6; // 60% of height (adjust as needed)
         centerPanel.add(northPanel, gbc);
@@ -44,6 +44,7 @@ class ReportPanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
     }
 
+    // keeping this for when we update the data
     public void updateData(ArrayList<String> itemNames, ArrayList<Integer> inventoryCounts) {
         this.itemNames = itemNames;
         this.inventoryCounts = inventoryCounts;
