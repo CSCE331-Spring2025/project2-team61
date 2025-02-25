@@ -209,22 +209,42 @@ public class ManagerPage extends JFrame {
     private void loadReportData() {
         ArrayList<String> itemNames = new ArrayList<>();
         ArrayList<Integer> inventoryCounts = new ArrayList<>();
-
+        ArrayList<String> recentItems = new ArrayList<>();
+        ArrayList<Double> recentPrices = new ArrayList<>();
+        ArrayList<String> recentPayments = new ArrayList<>();
+    
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT name, inventory FROM product ORDER BY inventory DESC;");
-
+    
+            // Query for Low Inventory Items
+            ResultSet rs = stmt.executeQuery("SELECT name, inventory FROM product WHERE inventory < 50 ORDER BY inventory ASC;");
             while (rs.next()) {
                 itemNames.add(rs.getString("name"));
                 inventoryCounts.add(rs.getInt("inventory"));
             }
-
-            reportPanel.updateData(itemNames, inventoryCounts);
+            reportPanel.updateLowSupplyTable(itemNames, inventoryCounts);
+    
+            // Query for 5 Most Recent Orders
+            rs = stmt.executeQuery(
+                "SELECT p.name AS item_name, ti.subtotal AS price, t.payment_type " +
+                "FROM transaction t " +
+                "JOIN transaction_item ti ON t.id = ti.transaction_id " +
+                "JOIN product p ON ti.product_id = p.id " +
+                "ORDER BY t.time DESC " +
+                "LIMIT 5;"
+            );
+    
+            while (rs.next()) {
+                recentItems.add(rs.getString("item_name"));
+                recentPrices.add(rs.getDouble("price"));
+                recentPayments.add(rs.getString("payment_type"));
+            }
+            reportPanel.updateRecentOrders(recentItems, recentPrices, recentPayments);
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
     // Button Renderer for Inventory "Order More" column
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
