@@ -185,7 +185,7 @@ public class CashierPage extends JFrame {
 
         // SEARCH BAR
         JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
-        JTextField searchField = new JTextField("Search item...");
+        JTextField searchField = new JTextField("");
         searchField.setFont(new Font("Arial", Font.PLAIN, 50));
         JButton searchButton = new JButton("+");
         searchButton.setBackground(Color.decode("#81D8D0"));
