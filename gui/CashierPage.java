@@ -91,7 +91,7 @@ public class CashierPage extends JFrame {
 
                 db.query("INSERT INTO transaction_item (transaction_id, product_id, quantity, subtotal) SELECT %d, %d, %d, %d * price FROM product WHERE id = %d RETURNING id;", transactionId, pId, quantity, quantity, pId);
 
-                System.out.printf("Transaction placed, total: %.2f\n", currentTotal);
+                // System.out.printf("Transaction placed, total: %.2f\n", currentTotal);
             }
 
             // TODO: Add dialog that transaction complete, query for payment type, cc digits, tip
@@ -185,9 +185,9 @@ public class CashierPage extends JFrame {
 
         // SEARCH BAR
         JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
-        JTextField searchField = new JTextField("Search item...");
+        JTextField searchField = new JTextField("");
         searchField.setFont(new Font("Arial", Font.PLAIN, 50));
-        JButton searchButton = new JButton("☼");
+        JButton searchButton = new JButton("+");
         searchButton.setBackground(Color.decode("#81D8D0"));
         searchButton.setFont(new Font("Arial", Font.BOLD, 50));
         searchPanel.add(searchField, BorderLayout.CENTER);
@@ -206,10 +206,43 @@ public class CashierPage extends JFrame {
         // Add ListSelectionListener for navigation
         navList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                String selected = navList.getSelectedValue();
-                if ("Logout [>]".equals(selected)) {
-                    handleLogout();
+            String selected = navList.getSelectedValue();
+            if ("Logout [>]".equals(selected)) {
+                handleLogout();
+            } else if ("Keyboard".equals(selected)) {
+                JFrame keyboardFrame = new JFrame("Keyboard");
+                keyboardFrame.setSize(750, 750);
+                keyboardFrame.setLayout(new GridLayout(4, 7));
+                for (char c = 'A'; c <= 'Z'; c++) {
+                JButton button = new JButton(String.valueOf(c));
+                button.setFont(new Font("Arial", Font.BOLD, 30));
+                keyboardFrame.add(button);
                 }
+                keyboardFrame.setVisible(true);
+                childFrames.add(keyboardFrame);
+            } else if ("Library".equals(selected)) {
+                JFrame libraryFrame = new JFrame("Library");
+                libraryFrame.setSize(750, 750);
+                libraryFrame.setLayout(new GridLayout(4, 3));
+                for (String category : productTypesReadable) {
+                    JButton button = new JButton(category);
+                    button.setFont(new Font("Arial", Font.BOLD, 30));
+                    libraryFrame.add(button);
+                }
+                libraryFrame.setVisible(true);
+                childFrames.add(libraryFrame);
+            } else if ("Menu".equals(selected)) {
+                JFrame menuFrame = new JFrame("Menu");
+                menuFrame.setSize(750, 750);
+                menuFrame.setLayout(new GridLayout(5, 4));
+                for (int i = 0; i < 20; i++) {
+                    JButton button = new JButton("Item " + (i + 1));
+                    button.setFont(new Font("Arial", Font.BOLD, 30));
+                    menuFrame.add(button);
+                }
+                menuFrame.setVisible(true);
+                childFrames.add(menuFrame);
+            }
             }
         });
 

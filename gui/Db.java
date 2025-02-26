@@ -48,6 +48,6 @@ public class Db {
             System.err.println(e.getClass().getName()+": "+e.getMessage());
             System.exit(1);
         }
-        System.out.println("DB Connection Established Successfully!");
+        // System.out.println("DB Connection Established Successfully!");
     }
 }

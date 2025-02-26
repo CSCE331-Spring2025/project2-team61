@@ -52,7 +52,7 @@ public class LoginScreen extends JFrame {
             String password = new String(passwordField.getPassword());
             String passwordHash = PasswordHash.hash(password);
 
-            System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name, password, passwordHash);
+            // System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name, password, passwordHash); 
 
             ResultSet rs = db.query("SELECT id FROM employee WHERE name='%s' AND password='%s';", name, passwordHash);
 
@@ -60,12 +60,12 @@ public class LoginScreen extends JFrame {
                 if (rs.next()) {
                     int employeeId = rs.getInt(1);
 
-                    System.out.println("Successfully Logged In!");
+                    // System.out.println("Successfully Logged In!"); 
                     this.dispose();
                     JobSelectionPage nextFrame = new JobSelectionPage(db, employeeId);
                     nextFrame.setVisible(true);
                 } else {
-                    System.out.println("Incorrect Username or Password");
+                    // System.out.println("Incorrect Username or Password");
                     errorLabel.setText("Incorrect Username or Password");
                 }
             } catch (SQLException se) {
@@ -74,7 +74,7 @@ public class LoginScreen extends JFrame {
         });
 
         exitButton.addActionListener(e -> {
-            System.out.printf("Exiting GUI...\n");
+            // System.out.printf("Exiting GUI...\n");
             this.dispose();
         });
 

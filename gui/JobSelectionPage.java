@@ -38,19 +38,19 @@ public class JobSelectionPage extends JFrame {
         logoutButton.setBounds(windowWidth / 2 - textFieldWidth + 50, loginButtonYPosition*5/4, textFieldWidth, textFieldHeight);
 
         job1Button.addActionListener(e -> {
-            System.out.println("Cashier Selected!");
+            // System.out.println("Cashier Selected!");
             this.dispose();
             new CashierPage(db, employeeId).setVisible(true);
         });
 
         job2Button.addActionListener(e -> {
-            System.out.println("Manager Selected!");
+            // System.out.println("Manager Selected!");
             this.dispose();
             new ManagerPage(employeeId).setVisible(true);
         });
 
         logoutButton.addActionListener(e -> {
-            System.out.printf("Logout Successful!\n");
+            // System.out.printf("Logout Successful!\n");
             this.dispose();
             new LoginScreen().setVisible(true);
         });
