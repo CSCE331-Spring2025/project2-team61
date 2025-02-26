@@ -30,7 +30,7 @@ public class FrameStyle {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Optional: keep window focused and on top
-        frame.setAlwaysOnTop(true);
+        // frame.setAlwaysOnTop(true);
         frame.requestFocus();
     }
 }

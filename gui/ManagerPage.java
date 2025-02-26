@@ -15,12 +15,16 @@ public class ManagerPage extends JFrame {
     private Connection connection;
     private ReportPanel reportPanel;
     private EmployeePanel employeePanel;
+    private int employeeId;
 
-    public ManagerPage() {
+
+    // TODO: pass in db
+    public ManagerPage(int employeeId) {
         super("Manager Inventory Interface");
-        setSize(1920, 1080);
+        FrameStyle.StyleFrame(this);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+
+        this.employeeId = employeeId;
 
         // Navbar Panel
         JPanel navbarPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 10));
@@ -423,11 +427,14 @@ public class ManagerPage extends JFrame {
 
     private void handleLogout() {
         dispose();
-        JFrame jobSelectionFrame = new JobSelectionPage();
+        JFrame jobSelectionFrame = new JobSelectionPage(new Db(), employeeId);
         jobSelectionFrame.setVisible(true);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(ManagerPage::new);
+        SwingUtilities.invokeLater(() -> {
+            ManagerPage mp = new ManagerPage(1);
+            mp.setVisible(true);
+        });
     }
 }

@@ -7,8 +7,14 @@ public class JobSelectionPage extends JFrame {
     static final int textFieldHeight = 50;
     static final Font selectionButtonFont = new Font("Arial", Font.BOLD, 32);
 
-    public JobSelectionPage() {
+    Db db;
+
+    int employeeId;
+
+    public JobSelectionPage(Db db, int employeeId) {
         super("Job Selection");
+        this.db = db;
+        this.employeeId = employeeId;
         FrameStyle.StyleFrame(this);
         initializeComponents();
     }
@@ -34,13 +40,13 @@ public class JobSelectionPage extends JFrame {
         job1Button.addActionListener(e -> {
             System.out.println("Cashier Selected!");
             this.dispose();
-            new CashierPage().setVisible(true);
+            new CashierPage(db, employeeId).setVisible(true);
         });
 
         job2Button.addActionListener(e -> {
             System.out.println("Manager Selected!");
             this.dispose();
-            new ManagerPage().setVisible(true);
+            new ManagerPage(employeeId).setVisible(true);
         });
 
         logoutButton.addActionListener(e -> {
@@ -57,11 +63,11 @@ public class JobSelectionPage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // Centers the window on the screen
     }
-
     // Main method for testing
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JobSelectionPage jobSelectionPage = new JobSelectionPage();
+            Db db = new Db();
+            JobSelectionPage jobSelectionPage = new JobSelectionPage(db, 1);
             jobSelectionPage.setVisible(true);
         });
     }

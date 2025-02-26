@@ -14,4 +14,4 @@ $(SRC_DIR)/%.class: $(SRC_DIR)/%.java
 	javac $<
 
 clean:
-	rm -f $(SRC_FILES)/*.class
+	rm -f $(SRC_DIR)/*.class
