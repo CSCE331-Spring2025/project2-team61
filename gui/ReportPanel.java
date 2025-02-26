@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 
 class ReportPanel extends JPanel {
-    private ArrayList<String> itemNames;
-    private ArrayList<Integer> inventoryCounts;
+    // private ArrayList<String> itemNames;
+    // private ArrayList<Integer> inventoryCounts;
     private TableOne tableOne; // Reference to the low supply table
     private TableTwo tableTwo; // Reference to the recent order table
+    Db db;
 
 
     public ReportPanel() {
-        this.itemNames = new ArrayList<>();
-        this.inventoryCounts = new ArrayList<>();
+        db = new Db();
+        // this.itemNames = new ArrayList<>();
+        // this.inventoryCounts = new ArrayList<>();
         setLayout(new BorderLayout());
 
         // Center Panel with a Grid Layout
@@ -22,8 +24,8 @@ class ReportPanel extends JPanel {
 
         // North Panel (Graphs)
         JPanel northPanel = new JPanel(new GridLayout(1, 3));
-        northPanel.add(new GraphOne());
-        northPanel.add(new GraphTwo());
+        northPanel.add(new GraphOne(db));
+        northPanel.add(new GraphTwo(db));
         northPanel.add(new GraphThree());
 
         // South Panel (Tables)
@@ -50,8 +52,8 @@ class ReportPanel extends JPanel {
     }
 
     public void updateData(ArrayList<String> itemNames, ArrayList<Integer> inventoryCounts) {
-        this.itemNames = itemNames;
-        this.inventoryCounts = inventoryCounts;
+        // this.itemNames = itemNames;
+        // this.inventoryCounts = inventoryCounts;
         repaint();
 
         // Forward the data to TableOne for low-supply tracking
@@ -71,14 +73,151 @@ class ReportPanel extends JPanel {
     }
 
     class GraphOne extends JPanel {
-        public GraphOne() {
-            setBackground(Color.BLUE);
+        private ArrayList<String> itemNames;
+        private ArrayList<Integer> inventoryCounts;
+
+        public GraphOne(Db db) {
+            this.itemNames = new ArrayList<>();
+            this.inventoryCounts = new ArrayList<>();
+
+            ResultSet rs = db.query("SELECT name, inventory FROM product ORDER BY inventory DESC;");
+            try {
+                while (rs.next()) {
+                    itemNames.add(rs.getString("name"));
+                    inventoryCounts.add(rs.getInt("inventory"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            setBackground(Color.WHITE);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
+            int padding = 25;
+            int labelPadding = 25;
+            int barWidth = (width - 2 * padding - labelPadding) / itemNames.size();
+            int maxInventory = inventoryCounts.stream().max(Integer::compare).orElse(1);
+
+            // Draw y-axis
+            g2d.drawLine(padding + labelPadding, height - padding, padding + labelPadding, padding);
+            // Draw x-axis
+            g2d.drawLine(padding + labelPadding, height - padding, width - padding, height - padding);
+
+            // Draw y-axis title
+            String yAxisTitle = "Quantity";
+            g2d.drawString(yAxisTitle, padding, padding - 10);
+
+            // Draw bars
+            for (int i = 0; i < itemNames.size(); i++) {
+                int barHeight = (int) ((double) inventoryCounts.get(i) / maxInventory * (height - 2 * padding));
+                g2d.setColor(Color.decode("#AE82D9"));
+                g2d.fillRect(padding + labelPadding + i * barWidth, height - padding - barHeight, barWidth - 5, barHeight);
+                g2d.setColor(Color.BLACK);
+                g2d.drawRect(padding + labelPadding + i * barWidth, height - padding - barHeight, barWidth - 5, barHeight);
+
+                // Draw item names
+                g2d.drawString(itemNames.get(i), padding + labelPadding + i * barWidth + barWidth / 2 - g2d.getFontMetrics().stringWidth(itemNames.get(i)) / 2, height - padding + g2d.getFontMetrics().getHeight());
+            }
+            // Draw y-axis labels
+            int numberYDivisions = 10;
+            for (int i = 0; i < numberYDivisions + 1; i++) {
+                int x0 = padding + labelPadding;
+                int x1 = barWidth * itemNames.size() + padding + labelPadding;
+                int y0 = height - ((i * (height - padding * 2)) / numberYDivisions + padding);
+                int y1 = y0;
+                if (itemNames.size() > 0) {
+                    g2d.setColor(Color.BLACK);
+                    String yLabel = ((int) ((maxInventory * ((i * 1.0) / numberYDivisions))) + "");
+                    FontMetrics metrics = g2d.getFontMetrics();
+                    int labelWidth = metrics.stringWidth(yLabel);
+                    g2d.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
+                }
+                g2d.drawLine(x0, y0, x1, y1);
+            }
         }
     }
 
     class GraphTwo extends JPanel {
-        public GraphTwo() {
-            setBackground(Color.GREEN);
+        private ArrayList<String> topSellers;
+        private ArrayList<Double> sales;
+
+        public GraphTwo(Db db) {
+            this.topSellers = new ArrayList<>();
+            this.sales = new ArrayList<>();
+
+            // SELECT product.name AS top_seller, SUM(transaction_item.subtotal) AS sales
+            // FROM product
+            // JOIN transaction_item ON transaction_item.product_id = product.id
+            // GROUP BY product.name
+            // ORDER BY sales DESC
+            // LIMIT 10;
+            ResultSet rs = db.query("SELECT product.name AS top_seller, SUM(transaction_item.subtotal) AS sales FROM product JOIN transaction_item ON transaction_item.product_id = product.id GROUP BY product.name ORDER BY sales DESC LIMIT 10;");
+            try {
+                while (rs.next()) {
+                    topSellers.add(rs.getString("top_seller"));
+                    sales.add(rs.getDouble("sales"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            setBackground(Color.WHITE);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            int width = getWidth();
+            int height = getHeight();
+            int padding = 25;
+            int labelPadding = 25;
+            int barWidth = (width - 2 * padding - labelPadding) / topSellers.size();
+            double maxSales = sales.stream().max(Double::compare).orElse(1.0);
+
+            // Draw y-axis
+            g2d.drawLine(padding + labelPadding, height - padding, padding + labelPadding, padding);
+            // Draw x-axis
+            g2d.drawLine(padding + labelPadding, height - padding, width - padding, height - padding);
+
+            // Draw y-axis title
+            String yAxisTitle = "Sales";
+            g2d.drawString(yAxisTitle, padding, padding - 10);
+
+            // Draw bars
+            for (int i = 0; i < topSellers.size(); i++) {
+                int barHeight = (int) ((sales.get(i) / maxSales) * (height - 2 * padding));
+                g2d.setColor(Color.decode("#82D9AE"));
+                g2d.fillRect(padding + labelPadding + i * barWidth, height - padding - barHeight, barWidth - 5, barHeight);
+                g2d.setColor(Color.BLACK);
+                g2d.drawRect(padding + labelPadding + i * barWidth, height - padding - barHeight, barWidth - 5, barHeight);
+
+                // Draw top seller names
+                g2d.drawString(topSellers.get(i), padding + labelPadding + i * barWidth + barWidth / 2 - g2d.getFontMetrics().stringWidth(topSellers.get(i)) / 2, height - padding + g2d.getFontMetrics().getHeight());
+            }
+
+            // Draw y-axis labels
+            int numberYDivisions = 10;
+            for (int i = 0; i < numberYDivisions + 1; i++) {
+                int x0 = padding + labelPadding;
+                int x1 = barWidth * topSellers.size() + padding + labelPadding;
+                int y0 = height - ((i * (height - padding * 2)) / numberYDivisions + padding);
+                int y1 = y0;
+                if (topSellers.size() > 0) {
+                    g2d.setColor(Color.BLACK);
+                    String yLabel = String.format("%.2f", (maxSales * ((i * 1.0) / numberYDivisions)));
+                    FontMetrics metrics = g2d.getFontMetrics();
+                    int labelWidth = metrics.stringWidth(yLabel);
+                    g2d.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
+                }
+                g2d.drawLine(x0, y0, x1, y1);
+            }
         }
     }
 
