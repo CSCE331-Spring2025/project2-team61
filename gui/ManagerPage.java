@@ -16,6 +16,7 @@ public class ManagerPage extends JFrame {
     private ReportPanel reportPanel;
     private EmployeePanel employeePanel;
     private int employeeId;
+    private JButton addProductButton;
 
 
     // TODO: pass in db
@@ -130,6 +131,18 @@ public class ManagerPage extends JFrame {
         JScrollPane priceScrollPane = new JScrollPane(priceTable);
         pricePanel.add(priceScrollPane, BorderLayout.CENTER);
 
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        addProductButton = new JButton("Add Product +");
+        addProductButton.setFont(new Font("Arial", Font.BOLD, 18));
+        addProductButton.setBackground(new Color(76, 175, 80)); // Green color
+        addProductButton.setForeground(Color.WHITE);
+        addProductButton.setFocusPainted(false);
+        addProductButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        addProductButton.addActionListener(e -> showAddProductDialog());
+        buttonPanel.add(addProductButton);
+
+        pricePanel.add(buttonPanel, BorderLayout.SOUTH);
+
         // Connect to database before creating panels that need the connection
         connectToDatabase();
 
@@ -156,6 +169,76 @@ public class ManagerPage extends JFrame {
         cardLayout.show(cardPanel, "inventory");
 
         setVisible(true);
+    }
+
+    private void showAddProductDialog() {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add New Product", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(400, 250);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel nameLabel = new JLabel("Product Name:");
+        JTextField nameField = new JTextField(20);
+
+        JLabel priceLabel = new JLabel("Price (in cents):");
+        JTextField priceField = new JTextField(20);
+
+        JLabel productTypeLabel = new JLabel("Product Type:");
+        JTextField productTypeField = new JTextField(20);
+
+        formPanel.add(nameLabel);
+        formPanel.add(nameField);
+        formPanel.add(priceLabel);
+        formPanel.add(priceField);
+        formPanel.add(productTypeLabel);
+        formPanel.add(productTypeField);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton cancelButton = new JButton("Cancel");
+        JButton saveButton = new JButton("Save");
+
+        cancelButton.addActionListener(e -> dialog.dispose());
+
+        saveButton.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String price = priceField.getText().trim();
+            String productType = productTypeField.getText().trim();
+
+            if (name.isEmpty() || price.isEmpty() || productType.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Name and password cannot be empty",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (addProduct(name, price, productType)) {
+                dialog.dispose();
+                loadPriceTable();
+            }
+        });
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+    private boolean addProduct(String productName, String productPrice, String productType) {
+        Db db = new Db();
+
+        if (db.query("INSERT INTO product (product_type, name, price) VALUES ('%s', '%s', %s) RETURNING id;", 
+            productType, productName, productPrice) == null) {
+            return false;
+        }
+        return true;
     }
 
     private void connectToDatabase() {
