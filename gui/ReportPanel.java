@@ -95,7 +95,7 @@ class ReportPanel extends JPanel {
         public TableOne() {
             setLayout(new BorderLayout());
             
-            JLabel headerLabel = new JLabel("⚠️ Low Supply Items (≤ 50)", SwingConstants.CENTER);
+            JLabel headerLabel = new JLabel("!! Low Supply Items (≤ 50)", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 18));
         headerLabel.setForeground(Color.RED); 
 
