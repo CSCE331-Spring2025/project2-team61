@@ -2,6 +2,8 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 class ReportPanel extends JPanel {
     // private ArrayList<String> itemNames;
