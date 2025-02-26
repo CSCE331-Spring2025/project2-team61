@@ -91,7 +91,7 @@ public class CashierPage extends JFrame {
 
                 db.query("INSERT INTO transaction_item (transaction_id, product_id, quantity, subtotal) SELECT %d, %d, %d, %d * price FROM product WHERE id = %d RETURNING id;", transactionId, pId, quantity, quantity, pId);
 
-                System.out.printf("Transaction placed, total: %.2f\n", currentTotal);
+                // System.out.printf("Transaction placed, total: %.2f\n", currentTotal);
             }
 
             // TODO: Add dialog that transaction complete, query for payment type, cc digits, tip

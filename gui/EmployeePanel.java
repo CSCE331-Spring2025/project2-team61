@@ -243,15 +243,20 @@ public class EmployeePanel extends JPanel {
         private int selectedRow;
         private String buttonText;
         private EmployeePanel panel;
-
+    
         public ButtonEditor(JCheckBox checkBox, String buttonText, EmployeePanel panel) {
             super(checkBox);
             this.buttonText = buttonText;
             this.panel = panel;
             button = new JButton(buttonText);
-            button.addActionListener(e -> fireEditingStopped());
+            button.addActionListener(e -> {
+                // Store the employeeId and trigger removal after editing stops
+                int employeeId = (int) this.panel.employeeTableModel.getValueAt(selectedRow, 0);
+                fireEditingStopped(); // Stop editing first
+                panel.removeEmployee(employeeId); // Then remove the employee
+            });
         }
-
+    
         @Override
         public Component getTableCellEditorComponent(
                 JTable table, Object value, boolean isSelected, int row, int column
@@ -259,14 +264,10 @@ public class EmployeePanel extends JPanel {
             selectedRow = row;
             return button;
         }
-
+    
         @Override
         public Object getCellEditorValue() {
-            if (buttonText.equals("Remove")) {
-                int employeeId = (int) panel.employeeTableModel.getValueAt(selectedRow, 0);
-                panel.removeEmployee(employeeId);
-            }
-            return buttonText;
+            return buttonText; // Simply return the text, no removal logic here
         }
     }
 }
