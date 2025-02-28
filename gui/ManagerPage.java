@@ -62,6 +62,14 @@ public class ManagerPage extends JFrame {
             cardLayout.show(cardPanel, "report");
         });
 
+        JButton ZReportNavButton = new JButton("Z-Report");
+        employeeNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+//        employeeNavButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                cardLayout.show(cardPanel, "ZReport");
+//            }
+//        });
+
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
         logoutNavButton.addActionListener(new ActionListener() {
@@ -74,6 +82,7 @@ public class ManagerPage extends JFrame {
         navbarPanel.add(priceNavButton);
         navbarPanel.add(employeeNavButton);
         navbarPanel.add(reportNavButton);
+        navbarPanel.add(ZReportNavButton);
         navbarPanel.add(logoutNavButton);
         add(navbarPanel, BorderLayout.NORTH);
 
