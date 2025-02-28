@@ -45,7 +45,7 @@ public class Db {
             conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword);
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(e.getClass().getName()+": "+e.getMessage());
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(1);
         }
         // System.out.println("DB Connection Established Successfully!");
