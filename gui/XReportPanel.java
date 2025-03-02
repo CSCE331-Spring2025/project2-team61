@@ -23,7 +23,7 @@ public class XReportPanel extends JPanel {
 
         // Header Panel with Date Selector
         JPanel topPanel = new JPanel();
-        JLabel headerLabel = new JLabel("📊 X-Report: Sales Per Hour", SwingConstants.CENTER);
+        JLabel headerLabel = new JLabel("X-Report: Sales Per Hour", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 18));
         headerLabel.setForeground(Color.BLUE);
 
