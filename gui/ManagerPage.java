@@ -17,10 +17,12 @@ public class ManagerPage extends JFrame {
     private EmployeePanel employeePanel;
     private int employeeId;
     private JButton addProductButton;
-
+    private XReportPanel xReportPanel;
     private ZReportPanel zReportPanel;
 
 
+
+    private Db db;
 
     // TODO: pass in db
     public ManagerPage(int employeeId) {
@@ -29,6 +31,7 @@ public class ManagerPage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.employeeId = employeeId;
+        db = new Db();
 
         // Navbar Panel
         JPanel navbarPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 10));
@@ -74,6 +77,21 @@ public class ManagerPage extends JFrame {
             }
         });
 
+        
+        JButton salesNavButton = new JButton("Sales Report");
+        salesNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+        // salesButton.addActionListener(new ActionListener() {
+        //     public void actionPerformed(ActionEvent e) {
+        //         cardLayout.show(cardPanel, "SalesReport");
+        //     }
+        // });
+        JButton xReportButton = new JButton("X-Report");
+        xReportButton.setFont(new Font("Arial", Font.BOLD, 20));
+        xReportButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        cardLayout.show(cardPanel, "xReport");
+            }
+        });
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
         logoutNavButton.addActionListener(new ActionListener() {
@@ -86,7 +104,9 @@ public class ManagerPage extends JFrame {
         navbarPanel.add(priceNavButton);
         navbarPanel.add(employeeNavButton);
         navbarPanel.add(reportNavButton);
+        navbarPanel.add(xReportButton);
         navbarPanel.add(ZReportNavButton);
+        navbarPanel.add(salesNavButton);
         navbarPanel.add(logoutNavButton);
         add(navbarPanel, BorderLayout.NORTH);
 
@@ -105,7 +125,7 @@ public class ManagerPage extends JFrame {
         inventoryLabel.setHorizontalAlignment(SwingConstants.CENTER);
         inventoryPanel.add(inventoryLabel, BorderLayout.NORTH);
 
-        String[] inventoryColumns = {"Item", "Inventory Count", "Order More"};
+        String[] inventoryColumns = { "Item", "Inventory Count", "Order More" };
         tableModel = new DefaultTableModel(inventoryColumns, 0);
         inventoryTable = new JTable(tableModel);
         inventoryTable.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -130,7 +150,7 @@ public class ManagerPage extends JFrame {
         priceLabel.setHorizontalAlignment(SwingConstants.CENTER);
         pricePanel.add(priceLabel, BorderLayout.NORTH);
 
-        String[] priceColumns = {"Item", "Price ($)", "Edit Price"};
+        String[] priceColumns = { "Item", "Price ($)", "Edit Price" };
         priceTableModel = new DefaultTableModel(priceColumns, 0);
         priceTable = new JTable(priceTableModel);
         priceTable.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -167,11 +187,14 @@ public class ManagerPage extends JFrame {
 
         zReportPanel = new ZReportPanel(connection);
 
+        xReportPanel = new XReportPanel(connection);
+
+        // Add panels to card layout
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
         cardPanel.add(employeePanel, "employee");
         cardPanel.add(reportPanel, "report");
-
+        cardPanel.add(xReportPanel, "xReport");
         cardPanel.add(zReportPanel, "zReport");
 
         add(cardPanel, BorderLayout.CENTER);
@@ -179,6 +202,7 @@ public class ManagerPage extends JFrame {
         loadInventory();
         loadPriceTable();
         loadReportData();
+        xReportPanel.loadXReportData("2025-02-26");
 
         // Show inventory view by default
         cardLayout.show(cardPanel, "inventory");
@@ -189,10 +213,15 @@ public class ManagerPage extends JFrame {
     private void showAddProductDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add New Product", true);
         dialog.setLayout(new BorderLayout());
-        dialog.setSize(400, 250);
+        dialog.setSize(400, 600);
         dialog.setLocationRelativeTo(this);
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel nameLabel = new JLabel("Product Name:");
@@ -202,14 +231,54 @@ public class ManagerPage extends JFrame {
         JTextField priceField = new JTextField(20);
 
         JLabel productTypeLabel = new JLabel("Product Type:");
-        JTextField productTypeField = new JTextField(20);
 
-        formPanel.add(nameLabel);
-        formPanel.add(nameField);
-        formPanel.add(priceLabel);
-        formPanel.add(priceField);
-        formPanel.add(productTypeLabel);
-        formPanel.add(productTypeField);
+        JPanel productTypePanel = new JPanel(new GridLayout(12, 1));
+        ButtonGroup productTypeButtonGroup = new ButtonGroup();
+
+        ArrayList<String> productTypes = new ArrayList<>();
+        ArrayList<String> productTypesReadable = new ArrayList<>();
+        ResultSet rs = db.query(
+                "SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_type.oid = pg_enum.enumtypid WHERE pg_type.typname = 'product_type';");
+
+        try {
+            for (int i = 0; rs.next(); i++) {
+                String productType = rs.getString("enumlabel");
+                productTypes.add(productType);
+                productTypesReadable.add(Utils.snakeToReadable(productType));
+            }
+        } catch (SQLException se) {
+            System.err.println(se);
+            System.exit(1);
+        }
+
+        for (int i = 0; i < productTypes.size(); i++) {
+            JRadioButton option = new JRadioButton(productTypesReadable.get(i)); 
+            option.setActionCommand(productTypes.get(i));
+            productTypeButtonGroup.add(option);
+            productTypePanel.add(option);
+        }
+
+        Component[] components = new Component[]{nameLabel, nameField, priceLabel, priceField};
+
+        gbc.weighty = 1.0;
+
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 2; col++) {
+                int idx = row * 2 + col;
+                gbc.gridx = col;
+                gbc.gridy = row;
+                formPanel.add(components[idx], gbc);
+            }
+        }
+
+        gbc.weighty = 2.0;
+        gbc.gridy = 2;
+
+        gbc.gridx = 0;
+        formPanel.add(productTypeLabel, gbc);
+
+        gbc.gridx = 1;
+        formPanel.add(productTypePanel, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton = new JButton("Cancel");
@@ -220,17 +289,18 @@ public class ManagerPage extends JFrame {
         saveButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             String price = priceField.getText().trim();
-            String productType = productTypeField.getText().trim();
+            ButtonModel productTypeSelection = productTypeButtonGroup.getSelection();
 
-            if (name.isEmpty() || price.isEmpty() || productType.isEmpty()) {
+            if (name.isEmpty() || price.isEmpty() || productTypeSelection == null) {
                 JOptionPane.showMessageDialog(
                         dialog,
-                        "Name and password cannot be empty",
+                        "Name, price, and product type cannot be empty",
                         "Validation Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
+            String productType = productTypeSelection.getActionCommand();
 
             if (addProduct(name, price, productType)) {
                 dialog.dispose();
@@ -249,8 +319,8 @@ public class ManagerPage extends JFrame {
     private boolean addProduct(String productName, String productPrice, String productType) {
         Db db = new Db();
 
-        if (db.query("INSERT INTO product (product_type, name, price) VALUES ('%s', '%s', %s) RETURNING id;", 
-            productType, productName, productPrice) == null) {
+        if (db.query("INSERT INTO product (product_type, name, price) VALUES ('%s', '%s', %s) RETURNING id;",
+                productType, productName, productPrice) == null) {
             return false;
         }
         return true;
@@ -261,8 +331,7 @@ public class ManagerPage extends JFrame {
             connection = DriverManager.getConnection(
                     "jdbc:postgresql://csce-315-db.engr.tamu.edu/team_61_db",
                     "team_61",
-                    "6161"
-            );
+                    "6161");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -274,12 +343,11 @@ public class ManagerPage extends JFrame {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(
                     "SELECT product.name, product.inventory AS inventory_count " +
-                            "FROM product ORDER BY inventory_count DESC;"
-            );
+                            "FROM product ORDER BY inventory_count DESC;");
             while (rs.next()) {
                 String name = rs.getString("name");
                 int inventory = rs.getInt("inventory_count");
-                tableModel.addRow(new Object[]{name, inventory, "Order More"});
+                tableModel.addRow(new Object[] { name, inventory, "Order More" });
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -291,13 +359,12 @@ public class ManagerPage extends JFrame {
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    "SELECT product.name, product.price FROM product ORDER BY price DESC;"
-            );
+                    "SELECT product.name, product.price FROM product ORDER BY price DESC;");
             while (rs.next()) {
                 String name = rs.getString("name");
                 // Convert cents to dollars for display
                 double price = rs.getDouble("price") / 100.0;
-                priceTableModel.addRow(new Object[]{
+                priceTableModel.addRow(new Object[] {
                         name,
                         String.format("$%.2f", price),
                         "Edit Price"
@@ -314,39 +381,40 @@ public class ManagerPage extends JFrame {
         ArrayList<String> recentItems = new ArrayList<>();
         ArrayList<Double> recentPrices = new ArrayList<>();
         ArrayList<String> recentPayments = new ArrayList<>();
-    
+
         try {
             Statement stmt = connection.createStatement();
-    
+
             // Query for Low Inventory Items
-            ResultSet rs = stmt.executeQuery("SELECT name, inventory FROM product WHERE inventory < 50 ORDER BY inventory ASC;");
+            ResultSet rs = stmt
+                    .executeQuery("SELECT name, inventory FROM product WHERE inventory < 50 ORDER BY inventory ASC;");
             while (rs.next()) {
                 itemNames.add(rs.getString("name"));
                 inventoryCounts.add(rs.getInt("inventory"));
             }
             reportPanel.updateLowSupplyTable(itemNames, inventoryCounts);
-    
+
             // Query for 5 Most Recent Orders
             rs = stmt.executeQuery(
-                "SELECT p.name AS item_name, ti.subtotal AS price, t.payment_type " +
-                "FROM transaction t " +
-                "JOIN transaction_item ti ON t.id = ti.transaction_id " +
-                "JOIN product p ON ti.product_id = p.id " +
-                "ORDER BY t.time DESC " +
-                "LIMIT 5;"
-            );
-    
+                    "SELECT p.name AS item_name, ti.subtotal AS price, t.payment_type " +
+                            "FROM transaction t " +
+                            "JOIN transaction_item ti ON t.id = ti.transaction_id " +
+                            "JOIN product p ON ti.product_id = p.id " +
+                            "ORDER BY t.time DESC " +
+                            "LIMIT 5;");
+
             while (rs.next()) {
                 recentItems.add(rs.getString("item_name"));
                 recentPrices.add(rs.getDouble("price"));
                 recentPayments.add(rs.getString("payment_type"));
             }
             reportPanel.updateRecentOrders(recentItems, recentPrices, recentPayments);
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     // Button Renderer for Inventory "Order More" column
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
@@ -356,8 +424,7 @@ public class ManagerPage extends JFrame {
         @Override
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column
-        ) {
+                boolean hasFocus, int row, int column) {
             return this;
         }
     }
@@ -380,8 +447,7 @@ public class ManagerPage extends JFrame {
 
         @Override
         public Component getTableCellEditorComponent(
-                JTable table, Object value, boolean isSelected, int row, int column
-        ) {
+                JTable table, Object value, boolean isSelected, int row, int column) {
             selectedRow = row;
             return button;
         }
@@ -399,8 +465,7 @@ public class ManagerPage extends JFrame {
                 this,
                 "Enter amount to add for " + itemName + ":",
                 "Order More",
-                JOptionPane.PLAIN_MESSAGE
-        );
+                JOptionPane.PLAIN_MESSAGE);
         if (input != null) {
             try {
                 int amountToAdd = Integer.parseInt(input);
@@ -414,8 +479,7 @@ public class ManagerPage extends JFrame {
                         this,
                         "Please enter a valid number.",
                         "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -423,8 +487,7 @@ public class ManagerPage extends JFrame {
     private void updateInventoryInDatabase(String itemName, int amountToAdd) {
         try {
             PreparedStatement pstmt = connection.prepareStatement(
-                    "UPDATE product SET inventory = inventory + ? WHERE name = ?"
-            );
+                    "UPDATE product SET inventory = inventory + ? WHERE name = ?");
             pstmt.setInt(1, amountToAdd);
             pstmt.setString(2, itemName);
             pstmt.executeUpdate();
@@ -443,8 +506,7 @@ public class ManagerPage extends JFrame {
         @Override
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column
-        ) {
+                boolean hasFocus, int row, int column) {
             return this;
         }
     }
@@ -467,8 +529,7 @@ public class ManagerPage extends JFrame {
 
         @Override
         public Component getTableCellEditorComponent(
-                JTable table, Object value, boolean isSelected, int row, int column
-        ) {
+                JTable table, Object value, boolean isSelected, int row, int column) {
             selectedRow = row;
             return button;
         }
@@ -486,8 +547,7 @@ public class ManagerPage extends JFrame {
                 this,
                 "Enter new price for " + itemName + " in dollars:",
                 "Edit Price",
-                JOptionPane.PLAIN_MESSAGE
-        );
+                JOptionPane.PLAIN_MESSAGE);
         if (input != null) {
             try {
                 double newPrice = Double.parseDouble(input);
@@ -503,8 +563,7 @@ public class ManagerPage extends JFrame {
                         this,
                         "Please enter a valid price.",
                         "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -512,8 +571,7 @@ public class ManagerPage extends JFrame {
     private void updatePriceInDatabase(String itemName, int newPriceCents) {
         try {
             PreparedStatement pstmt = connection.prepareStatement(
-                    "UPDATE product SET price = ? WHERE name = ?"
-            );
+                    "UPDATE product SET price = ? WHERE name = ?");
             pstmt.setInt(1, newPriceCents);
             pstmt.setString(2, itemName);
             pstmt.executeUpdate();

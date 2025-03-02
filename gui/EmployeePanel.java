@@ -2,8 +2,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.*;
 
 public class EmployeePanel extends JPanel {
@@ -26,7 +24,7 @@ public class EmployeePanel extends JPanel {
         add(employeeLabel, BorderLayout.NORTH);
 
         // Employee Table
-        String[] employeeColumns = {"ID", "Name", "Admin", "Remove"};
+        String[] employeeColumns = { "ID", "Name", "Admin", "Remove" };
         employeeTableModel = new DefaultTableModel(employeeColumns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -65,13 +63,12 @@ public class EmployeePanel extends JPanel {
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    "SELECT id, name, admin FROM employee ORDER BY id;"
-            );
+                    "SELECT id, name, admin FROM employee ORDER BY id;");
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
                 boolean isAdmin = rs.getBoolean("admin");
-                employeeTableModel.addRow(new Object[]{id, name, isAdmin ? "Yes" : "No", "Remove"});
+                employeeTableModel.addRow(new Object[] { id, name, isAdmin ? "Yes" : "No", "Remove" });
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -79,8 +76,7 @@ public class EmployeePanel extends JPanel {
                     this,
                     "Error loading employee data: " + e.getMessage(),
                     "Database Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -125,8 +121,7 @@ public class EmployeePanel extends JPanel {
                         dialog,
                         "Name and password cannot be empty",
                         "Validation Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -150,8 +145,7 @@ public class EmployeePanel extends JPanel {
     private boolean addEmployee(String name, String passwordHash, boolean isAdmin) {
         try {
             PreparedStatement pstmt = connection.prepareStatement(
-                    "INSERT INTO employee (name, password, admin) VALUES (?, ?, ?)"
-            );
+                    "INSERT INTO employee (name, password, admin) VALUES (?, ?, ?)");
             pstmt.setString(1, name);
             pstmt.setString(2, passwordHash);
             pstmt.setBoolean(3, isAdmin);
@@ -162,8 +156,7 @@ public class EmployeePanel extends JPanel {
                     this,
                     "Employee added successfully!",
                     "Success",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -171,8 +164,7 @@ public class EmployeePanel extends JPanel {
                     this,
                     "Error adding employee: " + e.getMessage(),
                     "Database Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
@@ -182,14 +174,12 @@ public class EmployeePanel extends JPanel {
                 this,
                 "Are you sure you want to remove this employee?",
                 "Confirm Removal",
-                JOptionPane.YES_NO_OPTION
-        );
+                JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 PreparedStatement pstmt = connection.prepareStatement(
-                        "DELETE FROM employee WHERE id = ?"
-                );
+                        "DELETE FROM employee WHERE id = ?");
                 pstmt.setInt(1, employeeId);
                 int rowsAffected = pstmt.executeUpdate();
                 pstmt.close();
@@ -199,16 +189,14 @@ public class EmployeePanel extends JPanel {
                             this,
                             "Employee removed successfully!",
                             "Success",
-                            JOptionPane.INFORMATION_MESSAGE
-                    );
+                            JOptionPane.INFORMATION_MESSAGE);
                     loadEmployeeData();
                 } else {
                     JOptionPane.showMessageDialog(
                             this,
                             "Employee not found.",
                             "Error",
-                            JOptionPane.ERROR_MESSAGE
-                    );
+                            JOptionPane.ERROR_MESSAGE);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -216,8 +204,7 @@ public class EmployeePanel extends JPanel {
                         this,
                         "Error removing employee: " + e.getMessage(),
                         "Database Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -231,8 +218,7 @@ public class EmployeePanel extends JPanel {
         @Override
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column
-        ) {
+                boolean hasFocus, int row, int column) {
             return this;
         }
     }
@@ -243,7 +229,7 @@ public class EmployeePanel extends JPanel {
         private int selectedRow;
         private String buttonText;
         private EmployeePanel panel;
-    
+
         public ButtonEditor(JCheckBox checkBox, String buttonText, EmployeePanel panel) {
             super(checkBox);
             this.buttonText = buttonText;
@@ -256,15 +242,14 @@ public class EmployeePanel extends JPanel {
                 panel.removeEmployee(employeeId); // Then remove the employee
             });
         }
-    
+
         @Override
         public Component getTableCellEditorComponent(
-                JTable table, Object value, boolean isSelected, int row, int column
-        ) {
+                JTable table, Object value, boolean isSelected, int row, int column) {
             selectedRow = row;
             return button;
         }
-    
+
         @Override
         public Object getCellEditorValue() {
             return buttonText; // Simply return the text, no removal logic here

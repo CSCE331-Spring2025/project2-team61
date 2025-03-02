@@ -27,24 +27,28 @@ public class LoginScreen extends JFrame {
 
         JTextField usernameField = new JTextField(50);
         usernameField.setFont(textFieldFont);
-        usernameField.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition - 2 * textFieldHeight, textFieldWidth, textFieldHeight);
+        usernameField.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition - 2 * textFieldHeight,
+                textFieldWidth, textFieldHeight);
 
         JPasswordField passwordField = new JPasswordField(50);
         passwordField.setFont(textFieldFont);
-        passwordField.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition - textFieldHeight, textFieldWidth, textFieldHeight);
+        passwordField.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition - textFieldHeight,
+                textFieldWidth, textFieldHeight);
 
         JButton loginButton = new JButton("Login");
         loginButton.setFont(loginButtonFont);
-        loginButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition, textFieldWidth, textFieldHeight);
+        loginButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition, textFieldWidth,
+                textFieldHeight);
 
         JButton exitButton = new JButton("Exit");
         exitButton.setFont(loginButtonFont);
-        exitButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition*5/4, textFieldWidth, textFieldHeight);
-
+        exitButton.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition * 5 / 4, textFieldWidth,
+                textFieldHeight);
 
         JLabel errorLabel = new JLabel("");
         errorLabel.setFont(errorLabelFont);
-        errorLabel.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition + textFieldHeight + 10, textFieldWidth + 80, textFieldHeight);
+        errorLabel.setBounds(windowWidth / 2 - textFieldWidth / 2, loginButtonYPosition + textFieldHeight + 10,
+                textFieldWidth + 80, textFieldHeight);
         errorLabel.setForeground(Color.RED);
 
         loginButton.addActionListener(e -> {
@@ -52,20 +56,18 @@ public class LoginScreen extends JFrame {
             String password = new String(passwordField.getPassword());
             String passwordHash = PasswordHash.hash(password);
 
-            // System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name, password, passwordHash); 
+            // System.out.printf("Login Clicked!, Name: %s, Password: %s, Hash: %s\n", name,
+            // password, passwordHash);
 
             ResultSet rs = db.query("SELECT id FROM employee WHERE name='%s' AND password='%s';", name, passwordHash);
 
             try {
                 if (rs.next()) {
                     int employeeId = rs.getInt(1);
-
-                    // System.out.println("Successfully Logged In!"); 
                     this.dispose();
                     JobSelectionPage nextFrame = new JobSelectionPage(db, employeeId);
                     nextFrame.setVisible(true);
                 } else {
-                    // System.out.println("Incorrect Username or Password");
                     errorLabel.setText("Incorrect Username or Password");
                 }
             } catch (SQLException se) {
@@ -74,7 +76,6 @@ public class LoginScreen extends JFrame {
         });
 
         exitButton.addActionListener(e -> {
-            // System.out.printf("Exiting GUI...\n");
             this.dispose();
         });
 
