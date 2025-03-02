@@ -17,6 +17,8 @@ public class ManagerPage extends JFrame {
     private EmployeePanel employeePanel;
     private int employeeId;
     private JButton addProductButton;
+    private XReportPanel xReportPanel;
+
 
 
     // TODO: pass in db
@@ -69,13 +71,23 @@ public class ManagerPage extends JFrame {
                 handleLogout();
             }
         });
+       
+        JButton xReportButton = new JButton("X-Report");
+        xReportButton.setFont(new Font("Arial", Font.BOLD, 20));
+        xReportButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        cardLayout.show(cardPanel, "xReport");
+            }
+        });
 
         navbarPanel.add(inventoryNavButton);
         navbarPanel.add(priceNavButton);
         navbarPanel.add(employeeNavButton);
         navbarPanel.add(reportNavButton);
+        navbarPanel.add(xReportButton);
         navbarPanel.add(logoutNavButton);
         add(navbarPanel, BorderLayout.NORTH);
+        
 
         // Card Panel to hold different views
         cardLayout = new CardLayout();
@@ -151,12 +163,16 @@ public class ManagerPage extends JFrame {
 
         // Create employee panel
         employeePanel = new EmployeePanel(connection);
+        
+        //create xReport Panel
+        xReportPanel = new XReportPanel(connection);
 
         // Add panels to card layout
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
         cardPanel.add(employeePanel, "employee");
         cardPanel.add(reportPanel, "report");
+        cardPanel.add(xReportPanel, "xReport");
 
         add(cardPanel, BorderLayout.CENTER);
 
@@ -164,7 +180,7 @@ public class ManagerPage extends JFrame {
         loadInventory();
         loadPriceTable();
         loadReportData();
-
+        xReportPanel.loadXReportData("2025-02-26");
         // Show inventory view by default
         cardLayout.show(cardPanel, "inventory");
 
