@@ -62,12 +62,21 @@ public class ManagerPage extends JFrame {
         });
 
         JButton ZReportNavButton = new JButton("Z-Report");
-        employeeNavButton.setFont(new Font("Arial", Font.BOLD, 20));
-//        employeeNavButton.addActionListener(new ActionListener() {
+        ZReportNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+//        ZReportNavButton.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
 //                cardLayout.show(cardPanel, "ZReport");
 //            }
 //        });
+
+        
+        JButton salesNavButton = new JButton("Sales Report");
+        salesNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+        // salesButton.addActionListener(new ActionListener() {
+        //     public void actionPerformed(ActionEvent e) {
+        //         cardLayout.show(cardPanel, "SalesReport");
+        //     }
+        // });
 
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
@@ -82,6 +91,7 @@ public class ManagerPage extends JFrame {
         navbarPanel.add(employeeNavButton);
         navbarPanel.add(reportNavButton);
         navbarPanel.add(ZReportNavButton);
+        navbarPanel.add(salesNavButton);
         navbarPanel.add(logoutNavButton);
         add(navbarPanel, BorderLayout.NORTH);
 
