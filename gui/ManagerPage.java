@@ -17,6 +17,8 @@ public class ManagerPage extends JFrame {
     private EmployeePanel employeePanel;
     private int employeeId;
     private JButton addProductButton;
+    private XReportPanel xReportPanel;
+
 
     // TODO: pass in db
     public ManagerPage(int employeeId) {
@@ -77,7 +79,13 @@ public class ManagerPage extends JFrame {
         //         cardLayout.show(cardPanel, "SalesReport");
         //     }
         // });
-
+        JButton xReportButton = new JButton("X-Report");
+        xReportButton.setFont(new Font("Arial", Font.BOLD, 20));
+        xReportButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+        cardLayout.show(cardPanel, "xReport");
+            }
+        });
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
         logoutNavButton.addActionListener(new ActionListener() {
@@ -90,6 +98,7 @@ public class ManagerPage extends JFrame {
         navbarPanel.add(priceNavButton);
         navbarPanel.add(employeeNavButton);
         navbarPanel.add(reportNavButton);
+        navbarPanel.add(xReportButton);
         navbarPanel.add(ZReportNavButton);
         navbarPanel.add(salesNavButton);
         navbarPanel.add(logoutNavButton);
@@ -170,11 +179,15 @@ public class ManagerPage extends JFrame {
         // Create employee panel
         employeePanel = new EmployeePanel(connection);
 
+        xReportPanel = new XReportPanel(connection);
+
         // Add panels to card layout
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
         cardPanel.add(employeePanel, "employee");
         cardPanel.add(reportPanel, "report");
+        cardPanel.add(xReportPanel, "xReport");
+
 
         add(cardPanel, BorderLayout.CENTER);
 
@@ -182,6 +195,7 @@ public class ManagerPage extends JFrame {
         loadInventory();
         loadPriceTable();
         loadReportData();
+        xReportPanel.loadXReportData("2025-02-26");
 
         // Show inventory view by default
         cardLayout.show(cardPanel, "inventory");
