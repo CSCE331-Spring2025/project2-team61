@@ -113,7 +113,7 @@ public class CashierPage extends JFrame {
             for (int i = 0; rs.next() && i < productTypes.length; i++) {
                 String productType = rs.getString("enumlabel");
                 productTypes[i] = productType;
-                productTypesReadable[i] = snakeToReadable(productType);
+                productTypesReadable[i] = Utils.snakeToReadable(productType);
             }
         } catch (SQLException se) {
             System.err.println(se);
@@ -260,22 +260,6 @@ public class CashierPage extends JFrame {
         }
         JFrame jobSelectionFrame = new JobSelectionPage(db, employeeId);
         jobSelectionFrame.setVisible(true);
-    }
-
-    private String snakeToReadable(String s) {
-        if (s == null)
-            return null;
-        s = s.replace('_', ' ');
-
-        s = s.substring(0, 1).toUpperCase() + s.substring(1);
-
-        for (int i = 1; i < s.length() - 1; i++) {
-            if (s.charAt(i) == ' ') {
-                s = s.substring(0, i + 1) + s.substring(i + 1, i + 2).toUpperCase() + s.substring(i + 2);
-            }
-        }
-
-        return s;
     }
 
     public static void main(String[] args) {

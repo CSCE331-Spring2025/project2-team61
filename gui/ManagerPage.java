@@ -20,6 +20,8 @@ public class ManagerPage extends JFrame {
     private XReportPanel xReportPanel;
 
 
+    private Db db;
+
     // TODO: pass in db
     public ManagerPage(int employeeId) {
         super("Manager Inventory Interface");
@@ -27,6 +29,7 @@ public class ManagerPage extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.employeeId = employeeId;
+        db = new Db();
 
         // Navbar Panel
         JPanel navbarPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 10));
@@ -206,10 +209,15 @@ public class ManagerPage extends JFrame {
     private void showAddProductDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add New Product", true);
         dialog.setLayout(new BorderLayout());
-        dialog.setSize(400, 250);
+        dialog.setSize(400, 600);
         dialog.setLocationRelativeTo(this);
 
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel nameLabel = new JLabel("Product Name:");
@@ -219,14 +227,54 @@ public class ManagerPage extends JFrame {
         JTextField priceField = new JTextField(20);
 
         JLabel productTypeLabel = new JLabel("Product Type:");
-        JTextField productTypeField = new JTextField(20);
 
-        formPanel.add(nameLabel);
-        formPanel.add(nameField);
-        formPanel.add(priceLabel);
-        formPanel.add(priceField);
-        formPanel.add(productTypeLabel);
-        formPanel.add(productTypeField);
+        JPanel productTypePanel = new JPanel(new GridLayout(12, 1));
+        ButtonGroup productTypeButtonGroup = new ButtonGroup();
+
+        ArrayList<String> productTypes = new ArrayList<>();
+        ArrayList<String> productTypesReadable = new ArrayList<>();
+        ResultSet rs = db.query(
+                "SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_type.oid = pg_enum.enumtypid WHERE pg_type.typname = 'product_type';");
+
+        try {
+            for (int i = 0; rs.next(); i++) {
+                String productType = rs.getString("enumlabel");
+                productTypes.add(productType);
+                productTypesReadable.add(Utils.snakeToReadable(productType));
+            }
+        } catch (SQLException se) {
+            System.err.println(se);
+            System.exit(1);
+        }
+
+        for (int i = 0; i < productTypes.size(); i++) {
+            JRadioButton option = new JRadioButton(productTypesReadable.get(i)); 
+            option.setActionCommand(productTypes.get(i));
+            productTypeButtonGroup.add(option);
+            productTypePanel.add(option);
+        }
+
+        Component[] components = new Component[]{nameLabel, nameField, priceLabel, priceField};
+
+        gbc.weighty = 1.0;
+
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 2; col++) {
+                int idx = row * 2 + col;
+                gbc.gridx = col;
+                gbc.gridy = row;
+                formPanel.add(components[idx], gbc);
+            }
+        }
+
+        gbc.weighty = 2.0;
+        gbc.gridy = 2;
+
+        gbc.gridx = 0;
+        formPanel.add(productTypeLabel, gbc);
+
+        gbc.gridx = 1;
+        formPanel.add(productTypePanel, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton = new JButton("Cancel");
@@ -237,16 +285,18 @@ public class ManagerPage extends JFrame {
         saveButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             String price = priceField.getText().trim();
-            String productType = productTypeField.getText().trim();
+            ButtonModel productTypeSelection = productTypeButtonGroup.getSelection();
 
-            if (name.isEmpty() || price.isEmpty() || productType.isEmpty()) {
+            if (name.isEmpty() || price.isEmpty() || productTypeSelection == null) {
                 JOptionPane.showMessageDialog(
                         dialog,
-                        "Name and password cannot be empty",
+                        "Name, price, and product type cannot be empty",
                         "Validation Error",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
+            String productType = productTypeSelection.getActionCommand();
 
             if (addProduct(name, price, productType)) {
                 dialog.dispose();
