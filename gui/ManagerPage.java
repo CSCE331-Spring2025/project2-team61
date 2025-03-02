@@ -18,6 +18,9 @@ public class ManagerPage extends JFrame {
     private int employeeId;
     private JButton addProductButton;
 
+    private ZReportPanel zReportPanel;
+
+
 
     // TODO: pass in db
     public ManagerPage(int employeeId) {
@@ -63,12 +66,13 @@ public class ManagerPage extends JFrame {
         });
 
         JButton ZReportNavButton = new JButton("Z-Report");
-        employeeNavButton.setFont(new Font("Arial", Font.BOLD, 20));
-//        employeeNavButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                cardLayout.show(cardPanel, "ZReport");
-//            }
-//        });
+        ZReportNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+        ZReportNavButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                zReportPanel.loadZReportData("2025-02-26"); // Ensure data loads before switching
+                cardLayout.show(cardPanel, "zReport"); // Use correct key "zReport"
+            }
+        });
 
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
@@ -161,15 +165,17 @@ public class ManagerPage extends JFrame {
         // Create employee panel
         employeePanel = new EmployeePanel(connection);
 
-        // Add panels to card layout
+        zReportPanel = new ZReportPanel(connection);
+
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
         cardPanel.add(employeePanel, "employee");
         cardPanel.add(reportPanel, "report");
 
+        cardPanel.add(zReportPanel, "zReport");
+
         add(cardPanel, BorderLayout.CENTER);
 
-        // Load data
         loadInventory();
         loadPriceTable();
         loadReportData();
