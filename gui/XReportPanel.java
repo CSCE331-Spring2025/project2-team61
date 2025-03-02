@@ -104,14 +104,14 @@ public class XReportPanel extends JPanel {
             while (rs.next()) {
                 int hour = rs.getInt("hour");
                 int totalOrders = rs.getInt("total_orders");
-                double totalSales = rs.getDouble("total_sales");
-                double cashSales = rs.getDouble("cash_sales");
-                double cardSales = rs.getDouble("card_sales");
-                double checkSales = rs.getDouble("check_sales");
-                double giftCardSales = rs.getDouble("gift_card_sales");
-                double returns = rs.getDouble("returns");
-                double voids = rs.getDouble("voids");
-                double discards = rs.getDouble("discards");
+                double totalSales = rs.getDouble("total_sales") / 100.0;
+                double cashSales = rs.getDouble("cash_sales") / 100.0;
+                double cardSales = rs.getDouble("card_sales") / 100.0;
+                double checkSales = rs.getDouble("check_sales") / 100.0;
+                double giftCardSales = rs.getDouble("gift_card_sales") / 100.0;
+                double returns = rs.getDouble("returns") / 100.0;
+                double voids = rs.getDouble("voids") / 100.0;
+                double discards = rs.getDouble("discards") / 100.0;
             
                 // Debugging Output
                 System.out.println("Hour: " + hour + " | Orders: " + totalOrders + " | Sales: " + totalSales +
