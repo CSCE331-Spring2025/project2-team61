@@ -122,14 +122,14 @@ public class ZReportPanel extends JPanel {
 
         if (rs.next()) {
             int totalTransactions = rs.getInt("total_transactions");
-            double totalSales = rs.getDouble("total_sales");
-            double cashTotal = rs.getDouble("cash_total");
-            double cardTotal = rs.getDouble("card_total");
-            double checkTotal = rs.getDouble("check_total");
-            double giftCardTotal = rs.getDouble("gift_card_total");
-            double returnsTotal = rs.getDouble("returns_total");
-            double voidsTotal = rs.getDouble("voids_total");
-            double discardsTotal = rs.getDouble("discards_total");
+            double totalSales = rs.getDouble("total_sales") / 100.0;  // Convert from cents to dollars
+            double cashTotal = rs.getDouble("cash_total") / 100.0;
+            double cardTotal = rs.getDouble("card_total") / 100.0;
+            double checkTotal = rs.getDouble("check_total") / 100.0;
+            double giftCardTotal = rs.getDouble("gift_card_total") / 100.0;
+            double returnsTotal = rs.getDouble("returns_total") / 100.0;
+            double voidsTotal = rs.getDouble("voids_total") / 100.0;
+            double discardsTotal = rs.getDouble("discards_total") / 100.0;
             int returnsCount = rs.getInt("returns_count");
             int voidsCount = rs.getInt("voids_count");
             int discardsCount = rs.getInt("discards_count");
@@ -171,6 +171,7 @@ public class ZReportPanel extends JPanel {
             reportSummaryArea.setText(summary.toString());
         }
     }
+
 
     // Confirm before closing the day
     private void confirmAndCloseDay() {
