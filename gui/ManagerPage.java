@@ -18,6 +18,8 @@ public class ManagerPage extends JFrame {
     private int employeeId;
     private JButton addProductButton;
     private XReportPanel xReportPanel;
+    private ZReportPanel zReportPanel;
+
 
 
     private Db db;
@@ -68,11 +70,12 @@ public class ManagerPage extends JFrame {
 
         JButton ZReportNavButton = new JButton("Z-Report");
         ZReportNavButton.setFont(new Font("Arial", Font.BOLD, 20));
-//        ZReportNavButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                cardLayout.show(cardPanel, "ZReport");
-//            }
-//        });
+        ZReportNavButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                zReportPanel.loadZReportData("2025-02-26"); // Ensure data loads before switching
+                cardLayout.show(cardPanel, "zReport"); // Use correct key "zReport"
+            }
+        });
 
         
         JButton salesNavButton = new JButton("Sales Report");
@@ -182,6 +185,8 @@ public class ManagerPage extends JFrame {
         // Create employee panel
         employeePanel = new EmployeePanel(connection);
 
+        zReportPanel = new ZReportPanel(connection);
+
         xReportPanel = new XReportPanel(connection);
 
         // Add panels to card layout
@@ -190,11 +195,10 @@ public class ManagerPage extends JFrame {
         cardPanel.add(employeePanel, "employee");
         cardPanel.add(reportPanel, "report");
         cardPanel.add(xReportPanel, "xReport");
-
+        cardPanel.add(zReportPanel, "zReport");
 
         add(cardPanel, BorderLayout.CENTER);
 
-        // Load data
         loadInventory();
         loadPriceTable();
         loadReportData();
