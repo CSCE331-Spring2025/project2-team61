@@ -18,6 +18,7 @@ public class ManagerPage extends JFrame {
     private int employeeId;
     private JButton addProductButton;
     private XReportPanel xReportPanel;
+    private ProductUsePanel productUsePanel;
 
 
     private Db db;
@@ -89,6 +90,15 @@ public class ManagerPage extends JFrame {
         cardLayout.show(cardPanel, "xReport");
             }
         });
+
+        JButton productUseNavButton = new JButton("Product Usage");
+        productUseNavButton.setFont(new Font("Arial", Font.BOLD, 20));
+        productUseNavButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "productUse");
+            }
+        });
+
         JButton logoutNavButton = new JButton("Logout");
         logoutNavButton.setFont(new Font("Arial", Font.BOLD, 20));
         logoutNavButton.addActionListener(new ActionListener() {
@@ -104,6 +114,7 @@ public class ManagerPage extends JFrame {
         navbarPanel.add(xReportButton);
         navbarPanel.add(ZReportNavButton);
         navbarPanel.add(salesNavButton);
+        navbarPanel.add(productUseNavButton);
         navbarPanel.add(logoutNavButton);
         add(navbarPanel, BorderLayout.NORTH);
 
@@ -184,13 +195,15 @@ public class ManagerPage extends JFrame {
 
         xReportPanel = new XReportPanel(connection);
 
+        productUsePanel = new ProductUsePanel(connection);
+
         // Add panels to card layout
         cardPanel.add(inventoryPanel, "inventory");
         cardPanel.add(pricePanel, "price");
         cardPanel.add(employeePanel, "employee");
         cardPanel.add(reportPanel, "report");
         cardPanel.add(xReportPanel, "xReport");
-
+        cardPanel.add(productUsePanel, "productUse");
 
         add(cardPanel, BorderLayout.CENTER);
 
