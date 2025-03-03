@@ -4,12 +4,33 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.*;
 
+/**
+ * The {@code EmployeePanel} class provides a graphical interface for managing employees.
+ * It allows viewing, adding, and removing employees from the database.
+ * 
+ * Features:
+ * - Displays a table of employees with their ID, name, admin status, and a remove button.
+ * - Allows adding new employees with hashed passwords.
+ * - Supports removing employees from the database.
+ * 
+ * @author Luke Conran
+ * @author Kamryn Vogel
+ * @author Christian Fadal
+ * @author Macsen Casaus
+ * @author Surada Suwansathit
+ */
 public class EmployeePanel extends JPanel {
     private DefaultTableModel employeeTableModel;
     private JTable employeeTable;
     private Connection connection;
     private JButton addEmployeeButton;
 
+    /**
+     * Constructs the {@code EmployeePanel} with a database connection.
+     * Initializes the UI components and loads employee data.
+     * 
+     * @param connection The database connection used to fetch and modify employee records.
+     */
     public EmployeePanel(Connection connection) {
         this.connection = connection;
         setLayout(new BorderLayout());
@@ -58,6 +79,9 @@ public class EmployeePanel extends JPanel {
         loadEmployeeData();
     }
 
+    /**
+     * Loads employee data from the database and populates the employee table.
+     */
     public void loadEmployeeData() {
         employeeTableModel.setRowCount(0);
         try {
@@ -80,6 +104,10 @@ public class EmployeePanel extends JPanel {
         }
     }
 
+    /**
+     * Displays a dialog for adding a new employee to the database.
+     * Allows entering the employee's name, password, and admin privileges.
+     */
     private void showAddEmployeeDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add New Employee", true);
         dialog.setLayout(new BorderLayout());
@@ -142,6 +170,14 @@ public class EmployeePanel extends JPanel {
         dialog.setVisible(true);
     }
 
+    /**
+     * Adds a new employee to the database.
+     * 
+     * @param name          The employee's name.
+     * @param passwordHash  The hashed password.
+     * @param isAdmin       Whether the employee has admin privileges.
+     * @return {@code true} if the employee was added successfully, {@code false} otherwise.
+     */
     private boolean addEmployee(String name, String passwordHash, boolean isAdmin) {
         try {
             PreparedStatement pstmt = connection.prepareStatement(
@@ -169,6 +205,11 @@ public class EmployeePanel extends JPanel {
         }
     }
 
+    /**
+     * Removes an employee from the database.
+     * 
+     * @param employeeId The ID of the employee to remove.
+     */
     public void removeEmployee(int employeeId) {
         int confirm = JOptionPane.showConfirmDialog(
                 this,
