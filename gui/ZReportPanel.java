@@ -225,7 +225,6 @@ public class ZReportPanel extends JPanel {
             }
 
             // Reset Z-Report data to zero
-            // TODO: reset
             resetZReportValues();
 
             // Notify success
@@ -247,7 +246,6 @@ public class ZReportPanel extends JPanel {
         }
     }
 
-    // TODO
     // Helper method to reset all Z-Report values to zero
     private void resetZReportValues() {
         // Clear the report text area
