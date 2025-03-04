@@ -5,6 +5,23 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * The {@code CashierPage} class represents the GUI for the cashier system.
+ * It allows cashiers to select products, manage transactions, and process payments.
+ * 
+ * This JFrame includes:
+ * - A left panel for displaying selected items and the total price.
+ * - A center panel with menu buttons for product selection.
+ * - A right panel with navigation options.
+ * 
+ * It interacts with a PostgreSQL database to fetch product data and process transactions.
+ * 
+ * @author Luke Conran
+ * @author Kamryn Vogel
+ * @author Christian Fadal
+ * @author Macsen Casaus
+ * @author Surada Suwansathit
+ */
 public class CashierPage extends JFrame {
     Db db;
     int employeeId;
@@ -16,6 +33,12 @@ public class CashierPage extends JFrame {
 
     ArrayList<JFrame> childFrames;
 
+     /**
+     * Constructs a new {@code CashierPage} with the given database connection and employee ID.
+     * 
+     * @param db         The database connection used for transactions.
+     * @param employeeId The ID of the logged-in employee.
+     */
     public CashierPage(Db db, int employeeId) {
         super("Cashier Page");
         this.db = db;
@@ -27,6 +50,9 @@ public class CashierPage extends JFrame {
         initializeComponents();
     }
 
+     /**
+     * Initializes and arranges UI components including panels, buttons, and labels.
+     */
     public void initializeComponents() {
         JPanel mainPanel = new JPanel(new BorderLayout());
 
@@ -66,7 +92,11 @@ public class CashierPage extends JFrame {
         contentPanel.add(payButton);
 
         leftPanel.add(contentPanel, BorderLayout.SOUTH);
-
+        
+        /**
+         * Action listener for processing payment when the pay button is clicked.
+         * It inserts a transaction into the database and clears the current order.
+         */
         payButton.addActionListener(e -> {
             ResultSet rs = db.query("INSERT INTO transaction (price, employee_id) VALUES (%d, %d) RETURNING id;",
                     (int) (currentTotal * 100), employeeId);
@@ -106,6 +136,9 @@ public class CashierPage extends JFrame {
         //////////////////// CENTER PANEL (Menu Buttons) ////////////////////
         String[] productTypes = new String[12];
         String[] productTypesReadable = new String[12];
+         /**
+         * Retrieves product types from the database and stores them in arrays.
+         */
         ResultSet rs = db.query(
                 "SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_type.oid = pg_enum.enumtypid WHERE pg_type.typname = 'product_type';");
 
@@ -202,6 +235,9 @@ public class CashierPage extends JFrame {
         JScrollPane navScroll = new JScrollPane(navList);
         rightPanel.add(navScroll, BorderLayout.CENTER);
 
+         /**
+         * Handles navigation actions when an option is selected.
+         */
         // Add ListSelectionListener for navigation
         navList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -251,7 +287,9 @@ public class CashierPage extends JFrame {
 
         add(mainPanel);
     }
-
+     /**
+     * Handles the logout process by closing all open frames and returning to the job selection page.
+     */
     // Logout handler
     private void handleLogout() {
         dispose();
@@ -262,6 +300,11 @@ public class CashierPage extends JFrame {
         jobSelectionFrame.setVisible(true);
     }
 
+     /**
+     * The main method for launching the Cashier Page.
+     * 
+     * @param args Command-line arguments (unused).
+     */
     public static void main(String[] args) {
         Db db = new Db();
         CashierPage cashierPage = new CashierPage(db, 1);
