@@ -24,9 +24,9 @@ public class SalesReport extends JPanel {
 
         JLabel dateLabel = new JLabel("Enter Times (YYYY-MM-DD):");
         dateInputFieldOne = new JTextField(10);
-        dateInputFieldOne.setText("2025-02-26"); // Default to a working date
+        dateInputFieldOne.setText("2025-01-01"); // Default to a working date
         dateInputFieldTwo = new JTextField(10);
-        dateInputFieldTwo.setText("2025-02-26");
+        dateInputFieldTwo.setText("2025-02-01");
         JButton loadButton = new JButton("Load Report");
 
         // Load report when button is clicked
@@ -59,14 +59,14 @@ public class SalesReport extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         // Initial data load
-        loadSalesReport("2025-02-26", "2025-02-26");
+        loadSalesReport("2025-01-01", "2025-02-01");
     }
 
     public void loadSalesReport(String startTime, String endTime) {
         tableModel.setRowCount(0); // Clear previous data
 
         String sql = "SELECT p.name AS menu_item, COUNT(DISTINCT t.id) AS total_orders, " +
-                    "SUM(CASE WHEN t.payment_type = 'cash' THEN ti.subtotal ELSE 0 END) AS cash_sales " +
+                    "SUM(ti.subtotal) AS cash_sales " +
                     "FROM product p " +
                     "JOIN transaction_item ti ON p.id = ti.product_id " +
                     "JOIN transaction t ON t.id = ti.transaction_id " +
