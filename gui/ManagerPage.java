@@ -19,6 +19,8 @@ public class ManagerPage extends JFrame {
     private JButton addProductButton;
     private XReportPanel xReportPanel;
     private ProductUsePanel productUsePanel;
+    private ZReportPanel zReportPanel;
+
 
 
     private Db db;
@@ -69,11 +71,12 @@ public class ManagerPage extends JFrame {
 
         JButton ZReportNavButton = new JButton("Z-Report");
         ZReportNavButton.setFont(new Font("Arial", Font.BOLD, 20));
-//        ZReportNavButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                cardLayout.show(cardPanel, "ZReport");
-//            }
-//        });
+        ZReportNavButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                zReportPanel.loadZReportData("2025-02-26"); // Ensure data loads before switching
+                cardLayout.show(cardPanel, "zReport"); // Use correct key "zReport"
+            }
+        });
 
         
         JButton salesNavButton = new JButton("Sales Report");
@@ -193,6 +196,8 @@ public class ManagerPage extends JFrame {
         // Create employee panel
         employeePanel = new EmployeePanel(connection);
 
+        zReportPanel = new ZReportPanel(connection);
+
         xReportPanel = new XReportPanel(connection);
 
         productUsePanel = new ProductUsePanel(connection);
@@ -204,10 +209,10 @@ public class ManagerPage extends JFrame {
         cardPanel.add(reportPanel, "report");
         cardPanel.add(xReportPanel, "xReport");
         cardPanel.add(productUsePanel, "productUse");
+        cardPanel.add(zReportPanel, "zReport");
 
         add(cardPanel, BorderLayout.CENTER);
 
-        // Load data
         loadInventory();
         loadPriceTable();
         loadReportData();
@@ -238,6 +243,9 @@ public class ManagerPage extends JFrame {
 
         JLabel priceLabel = new JLabel("Price (in cents):");
         JTextField priceField = new JTextField(20);
+        
+        JLabel initialInventoryLabel = new JLabel("Initial Inventory:");
+        JTextField initialInventoryField = new JTextField(20);
 
         JLabel productTypeLabel = new JLabel("Product Type:");
 
@@ -267,11 +275,11 @@ public class ManagerPage extends JFrame {
             productTypePanel.add(option);
         }
 
-        Component[] components = new Component[]{nameLabel, nameField, priceLabel, priceField};
+        Component[] components = new Component[]{nameLabel, nameField, priceLabel, priceField, initialInventoryLabel, initialInventoryField};
 
         gbc.weighty = 1.0;
 
-        for (int row = 0; row < 2; row++) {
+        for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 2; col++) {
                 int idx = row * 2 + col;
                 gbc.gridx = col;
@@ -281,7 +289,7 @@ public class ManagerPage extends JFrame {
         }
 
         gbc.weighty = 2.0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
 
         gbc.gridx = 0;
         formPanel.add(productTypeLabel, gbc);
@@ -297,13 +305,55 @@ public class ManagerPage extends JFrame {
 
         saveButton.addActionListener(e -> {
             String name = nameField.getText().trim();
-            String price = priceField.getText().trim();
-            ButtonModel productTypeSelection = productTypeButtonGroup.getSelection();
 
-            if (name.isEmpty() || price.isEmpty() || productTypeSelection == null) {
+            int price;
+            try {
+                price = Integer.parseInt(priceField.getText().trim());
+            } catch (NumberFormatException nfe) {
                 JOptionPane.showMessageDialog(
                         dialog,
-                        "Name, price, and product type cannot be empty",
+                        "Price should be an integer",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (price < 0) {
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Price must be non-negative",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int inventory;
+            try {
+                inventory = Integer.parseInt(initialInventoryField.getText().trim());
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Initial inventory should be an integer",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (inventory < 0) {
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Inventory must be non-negative",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ButtonModel productTypeSelection = productTypeButtonGroup.getSelection();
+
+            if (name.isEmpty() || productTypeSelection == null) {
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Name, price, inventory and product type cannot be empty",
                         "Validation Error",
                         JOptionPane.ERROR_MESSAGE);
                 return;
@@ -311,7 +361,7 @@ public class ManagerPage extends JFrame {
 
             String productType = productTypeSelection.getActionCommand();
 
-            if (addProduct(name, price, productType)) {
+            if (addProduct(name, price, productType, inventory)) {
                 dialog.dispose();
                 loadPriceTable();
             }
@@ -325,11 +375,11 @@ public class ManagerPage extends JFrame {
         dialog.setVisible(true);
     }
 
-    private boolean addProduct(String productName, String productPrice, String productType) {
+    private boolean addProduct(String name, int price, String type, int inventory) {
         Db db = new Db();
 
-        if (db.query("INSERT INTO product (product_type, name, price) VALUES ('%s', '%s', %s) RETURNING id;",
-                productType, productName, productPrice) == null) {
+        if (db.query("INSERT INTO product (product_type, name, price, inventory) VALUES ('%s', '%s', %s, %s) RETURNING id;",
+                type, name, price, inventory) == null) {
             return false;
         }
         return true;

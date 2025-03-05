@@ -1,4 +1,5 @@
 gen-sql/
 __pycache__/
+docs/
 
 *.class
