@@ -17,6 +17,7 @@ public class ManagerPage extends JFrame {
     private EmployeePanel employeePanel;
     private int employeeId;
     private JButton addProductButton;
+    private SalesReport salesReport;
     private XReportPanel xReportPanel;
     private ProductUsePanel productUsePanel;
     private ZReportPanel zReportPanel;
@@ -81,11 +82,12 @@ public class ManagerPage extends JFrame {
         
         JButton salesNavButton = new JButton("Sales Report");
         salesNavButton.setFont(new Font("Arial", Font.BOLD, 20));
-        // salesButton.addActionListener(new ActionListener() {
-        //     public void actionPerformed(ActionEvent e) {
-        //         cardLayout.show(cardPanel, "SalesReport");
-        //     }
-        // });
+        salesNavButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "SalesReport");
+            }
+        });
+
         JButton xReportButton = new JButton("X-Report");
         xReportButton.setFont(new Font("Arial", Font.BOLD, 20));
         xReportButton.addActionListener(new ActionListener() {
@@ -197,6 +199,7 @@ public class ManagerPage extends JFrame {
         employeePanel = new EmployeePanel(connection);
 
         zReportPanel = new ZReportPanel(connection);
+        salesReport = new SalesReport();
 
         xReportPanel = new XReportPanel(connection);
 
@@ -210,6 +213,7 @@ public class ManagerPage extends JFrame {
         cardPanel.add(xReportPanel, "xReport");
         cardPanel.add(productUsePanel, "productUse");
         cardPanel.add(zReportPanel, "zReport");
+        cardPanel.add(salesReport, "SalesReport");
 
         add(cardPanel, BorderLayout.CENTER);
 
