@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 
-
-
 public class ProductUsePanel extends JPanel {
     private Connection connection;
     private JTextField timeStartField;
@@ -15,42 +13,41 @@ public class ProductUsePanel extends JPanel {
     private JTextField dateField;
     private JTable ProductUseTable;
 
-        public ProductUsePanel(Connection connection) {
-            this.connection = connection;
+    public ProductUsePanel(Connection connection) {
+        this.connection = connection;
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Check connection
         if (connection == null) {
-            JOptionPane.showMessageDialog(this, "Database connection failed in ProductUse!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Database connection failed in ProductUse!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Header 
+        // Header
         JPanel topPanel = new JPanel();
 
         JLabel headerLabel = new JLabel("Product Usage Chart  ", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 30));
         headerLabel.setForeground(Color.decode("#AE82D9"));
         topPanel.add(headerLabel, BorderLayout.NORTH);
-        
-
 
         // Time Window
-        JLabel dateLabel = new JLabel("Enter Date (YYYY-MM-DD):"); 
+        JLabel dateLabel = new JLabel("Enter Date (YYYY-MM-DD):");
         dateLabel.setFont(new Font("Arial", Font.BOLD, 16));
         dateField = new JTextField(10);
-        dateField.setText("2025-02-26"); // Default 
-        
+        dateField.setText("2025-02-26"); // Default
+
         JLabel startLabel = new JLabel("  Enter Time as Hour (0-23):");
         startLabel.setFont(new Font("Arial", Font.BOLD, 16));
         timeStartField = new JTextField(8);
-        timeStartField.setText("0"); // Default  
+        timeStartField.setText("0"); // Default
 
         JLabel endLabel = new JLabel("");
         endLabel.setFont(new Font("Arial", Font.BOLD, 16));
         timeEndField = new JTextField(8);
-        timeEndField.setText("23"); // Default 
+        timeEndField.setText("23"); // Default
 
         JButton loadButton = new JButton("Load Chart");
 
@@ -74,7 +71,7 @@ public class ProductUsePanel extends JPanel {
         tableModel = new DefaultTableModel();
         tableModel.addColumn("Product Name");
         tableModel.addColumn("Amount Used");
-      
+
         ProductUseTable = new JTable(tableModel);
 
         ProductUseTable.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -87,8 +84,8 @@ public class ProductUsePanel extends JPanel {
 
     public void loadProduceUseData(String startTime, String endTime, String date) {
 
-        System.out.println("Loading Product Usage");
-    
+        // System.out.println("Loading Product Usage");
+
         if (connection == null) {
             JOptionPane.showMessageDialog(this, "Database connection lost!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -96,39 +93,39 @@ public class ProductUsePanel extends JPanel {
         tableModel.setRowCount(0);
 
         try {
-        String query =  "SELECT DATE(transaction.time) AS day, " +
-                        "product.name AS product_name, COUNT(transaction_item.product_id) AS transaction_count " +
-                        "FROM transaction_item " +
-                        "JOIN transaction ON transaction_item.transaction_id = transaction.id " +
-                        "JOIN product ON product.id = transaction_item.product_id " +
-                        "WHERE DATE(transaction.time) = CAST(? AS DATE) " +
-                        "AND EXTRACT(HOUR FROM transaction.time) BETWEEN CAST(? AS INT) AND CAST(? AS INT) " +
-                        "GROUP BY product.name, day" ;
+            String query = "SELECT DATE(transaction.time) AS day, " +
+                    "product.name AS product_name, COUNT(transaction_item.product_id) AS transaction_count " +
+                    "FROM transaction_item " +
+                    "JOIN transaction ON transaction_item.transaction_id = transaction.id " +
+                    "JOIN product ON product.id = transaction_item.product_id " +
+                    "WHERE DATE(transaction.time) = CAST(? AS DATE) " +
+                    "AND EXTRACT(HOUR FROM transaction.time) BETWEEN CAST(? AS INT) AND CAST(? AS INT) " +
+                    "GROUP BY product.name, day";
 
-        PreparedStatement stmt = connection.prepareStatement(query);
-        stmt.setString(1, date);
-        stmt.setString(2, startTime);
-        stmt.setString(3, endTime);
-        System.out.println("Executing SQL Query...");
-        ResultSet rs = stmt.executeQuery();
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, date);
+            stmt.setString(2, startTime);
+            stmt.setString(3, endTime);
+            // System.out.println("Executing SQL Query...");
+            ResultSet rs = stmt.executeQuery();
 
+            while (rs.next()) {
+                int totalOrders = rs.getInt("transaction_count");
+                String productName = rs.getString("product_name");
 
-        while (rs.next()) {
-            int totalOrders = rs.getInt("transaction_count");
-            String productName = rs.getString("product_name");
+                tableModel.addRow(new Object[] {
+                        productName,
+                        totalOrders
+                });
+            }
 
-            tableModel.addRow(new Object[]{
-                productName,
-                totalOrders
-            });
-        }
-
-        rs.close();
-        stmt.close();
-        System.out.println("Product Usage Loaded Successfully!");
+            rs.close();
+            stmt.close();
+            // System.out.println("Product Usage Loaded Successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading Product Use data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading Product Use data: " + e.getMessage(), "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

@@ -22,8 +22,6 @@ public class ManagerPage extends JFrame {
     private ProductUsePanel productUsePanel;
     private ZReportPanel zReportPanel;
 
-
-
     private Db db;
 
     // TODO: pass in db
@@ -79,7 +77,6 @@ public class ManagerPage extends JFrame {
             }
         });
 
-        
         JButton salesNavButton = new JButton("Sales Report");
         salesNavButton.setFont(new Font("Arial", Font.BOLD, 20));
         salesNavButton.addActionListener(new ActionListener() {
@@ -91,8 +88,8 @@ public class ManagerPage extends JFrame {
         JButton xReportButton = new JButton("X-Report");
         xReportButton.setFont(new Font("Arial", Font.BOLD, 20));
         xReportButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-        cardLayout.show(cardPanel, "xReport");
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(cardPanel, "xReport");
             }
         });
 
@@ -247,7 +244,7 @@ public class ManagerPage extends JFrame {
 
         JLabel priceLabel = new JLabel("Price (in cents):");
         JTextField priceField = new JTextField(20);
-        
+
         JLabel initialInventoryLabel = new JLabel("Initial Inventory:");
         JTextField initialInventoryField = new JTextField(20);
 
@@ -262,7 +259,7 @@ public class ManagerPage extends JFrame {
                 "SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_type.oid = pg_enum.enumtypid WHERE pg_type.typname = 'product_type';");
 
         try {
-            for (int i = 0; rs.next(); i++) {
+            while (rs.next()) {
                 String productType = rs.getString("enumlabel");
                 productTypes.add(productType);
                 productTypesReadable.add(Utils.snakeToReadable(productType));
@@ -273,13 +270,14 @@ public class ManagerPage extends JFrame {
         }
 
         for (int i = 0; i < productTypes.size(); i++) {
-            JRadioButton option = new JRadioButton(productTypesReadable.get(i)); 
+            JRadioButton option = new JRadioButton(productTypesReadable.get(i));
             option.setActionCommand(productTypes.get(i));
             productTypeButtonGroup.add(option);
             productTypePanel.add(option);
         }
 
-        Component[] components = new Component[]{nameLabel, nameField, priceLabel, priceField, initialInventoryLabel, initialInventoryField};
+        Component[] components = new Component[] { nameLabel, nameField, priceLabel, priceField, initialInventoryLabel,
+                initialInventoryField };
 
         gbc.weighty = 1.0;
 
@@ -382,7 +380,8 @@ public class ManagerPage extends JFrame {
     private boolean addProduct(String name, int price, String type, int inventory) {
         Db db = new Db();
 
-        if (db.query("INSERT INTO product (product_type, name, price, inventory) VALUES ('%s', '%s', %s, %s) RETURNING id;",
+        if (db.query(
+                "INSERT INTO product (product_type, name, price, inventory) VALUES ('%s', '%s', %s, %s) RETURNING id;",
                 type, name, price, inventory) == null) {
             return false;
         }

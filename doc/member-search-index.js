@@ -1,1 +1,0 @@
-memberSearchIndex = [{"p":"<Unnamed>","c":"Db","l":"Db()","u":"%3Cinit%3E()"},{"p":"<Unnamed>","c":"Db","l":"Db(String, String, String)","u":"%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String)"},{"p":"<Unnamed>","c":"Db","l":"query(String, Object...)","u":"query(java.lang.String,java.lang.Object...)"}];updateSearchResults();

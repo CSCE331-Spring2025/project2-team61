@@ -50,7 +50,8 @@ public class Db {
      * 
      * @param fmt  The SQL query format string.
      * @param args The arguments to format into the SQL query.
-     * @return A {@code ResultSet} containing the results of the query, or {@code null} if an error occurs.
+     * @return A {@code ResultSet} containing the results of the query, or
+     *         {@code null} if an error occurs.
      */
     public ResultSet query(String fmt, Object... args) {
         String sqlStatement = String.format(fmt, args);

@@ -1,14 +1,10 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ZReportPanel extends JPanel {
-    private DefaultTableModel tableModel;
     private Connection connection;
     private JTextField dateInputField;
     private JButton closeDayButton;
@@ -77,7 +73,7 @@ public class ZReportPanel extends JPanel {
 
     // Load Z-Report data without hourly breakdown
     public void loadZReportData(String selectedDate) {
-        System.out.println("Loading Z-Report for date: " + selectedDate);
+        // System.out.println("Loading Z-Report for date: " + selectedDate);
 
         if (connection == null) {
             JOptionPane.showMessageDialog(this, "Database connection lost!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -88,10 +84,11 @@ public class ZReportPanel extends JPanel {
             // Generate summary with totals only
             generateDailySummary(selectedDate);
 
-            System.out.println("Z-Report Loaded Successfully!");
+            // System.out.println("Z-Report Loaded Successfully!");
         } catch (SQLException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading Z-Report data: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading Z-Report data: " + e.getMessage(), "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -108,21 +105,21 @@ public class ZReportPanel extends JPanel {
                         "SUM(CASE WHEN t.payment_type = 'gift_card' THEN ti.subtotal ELSE 0 END) AS gift_card_total, " +
                         "SUM(CASE WHEN t.transaction_type = 'return' THEN ti.subtotal ELSE 0 END) AS returns_total, " +
                         "SUM(CASE WHEN t.transaction_type = 'void' THEN ti.subtotal ELSE 0 END) AS voids_total, " +
-                        "SUM(CASE WHEN t.transaction_type = 'discard' THEN ti.subtotal ELSE 0 END) AS discards_total, " +
+                        "SUM(CASE WHEN t.transaction_type = 'discard' THEN ti.subtotal ELSE 0 END) AS discards_total, "
+                        +
                         "COUNT(CASE WHEN t.transaction_type = 'return' THEN 1 END) AS returns_count, " +
                         "COUNT(CASE WHEN t.transaction_type = 'void' THEN 1 END) AS voids_count, " +
                         "COUNT(CASE WHEN t.transaction_type = 'discard' THEN 1 END) AS discards_count " +
                         "FROM transaction t " +
                         "JOIN transaction_item ti ON t.id = ti.transaction_id " +
-                        "WHERE DATE(t.time) = CAST(? AS DATE)"
-        );
+                        "WHERE DATE(t.time) = CAST(? AS DATE)");
 
         stmt.setString(1, selectedDate);
         ResultSet rs = stmt.executeQuery();
 
         if (rs.next()) {
             int totalTransactions = rs.getInt("total_transactions");
-            double totalSales = rs.getDouble("total_sales") / 100.0;  // Convert from cents to dollars
+            double totalSales = rs.getDouble("total_sales") / 100.0; // Convert from cents to dollars
             double cashTotal = rs.getDouble("cash_total") / 100.0;
             double cardTotal = rs.getDouble("card_total") / 100.0;
             double checkTotal = rs.getDouble("check_total") / 100.0;
@@ -172,7 +169,6 @@ public class ZReportPanel extends JPanel {
         }
     }
 
-
     // Confirm before closing the day
     private void confirmAndCloseDay() {
         String selectedDate = dateInputField.getText();
@@ -185,8 +181,7 @@ public class ZReportPanel extends JPanel {
                         "This action cannot be undone.",
                 "Confirm Close Day",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+                JOptionPane.WARNING_MESSAGE);
 
         if (option == JOptionPane.YES_OPTION) {
             closeDay(selectedDate);
@@ -204,8 +199,7 @@ public class ZReportPanel extends JPanel {
                     this,
                     "Would you like to print the Z-Report before resetting?",
                     "Print Report",
-                    JOptionPane.YES_NO_OPTION
-            );
+                    JOptionPane.YES_NO_OPTION);
 
             if (printOption == JOptionPane.YES_OPTION) {
                 try {
@@ -219,8 +213,7 @@ public class ZReportPanel extends JPanel {
                             this,
                             "Error printing report: " + e.getMessage(),
                             "Print Error",
-                            JOptionPane.ERROR_MESSAGE
-                    );
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
 
@@ -232,8 +225,7 @@ public class ZReportPanel extends JPanel {
                     this,
                     "Z-Report has been reset to zero.",
                     "Reset Complete",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -241,8 +233,7 @@ public class ZReportPanel extends JPanel {
                     this,
                     "Error resetting Z-Report: " + e.getMessage(),
                     "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

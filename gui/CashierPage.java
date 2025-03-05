@@ -7,14 +7,16 @@ import java.util.function.Consumer;
 
 /**
  * The {@code CashierPage} class represents the GUI for the cashier system.
- * It allows cashiers to select products, manage transactions, and process payments.
+ * It allows cashiers to select products, manage transactions, and process
+ * payments.
  * 
  * This JFrame includes:
  * - A left panel for displaying selected items and the total price.
  * - A center panel with menu buttons for product selection.
  * - A right panel with navigation options.
  * 
- * It interacts with a PostgreSQL database to fetch product data and process transactions.
+ * It interacts with a PostgreSQL database to fetch product data and process
+ * transactions.
  * 
  * @author Luke Conran
  * @author Kamryn Vogel
@@ -33,8 +35,9 @@ public class CashierPage extends JFrame {
 
     ArrayList<JFrame> childFrames;
 
-     /**
-     * Constructs a new {@code CashierPage} with the given database connection and employee ID.
+    /**
+     * Constructs a new {@code CashierPage} with the given database connection and
+     * employee ID.
      * 
      * @param db         The database connection used for transactions.
      * @param employeeId The ID of the logged-in employee.
@@ -50,7 +53,7 @@ public class CashierPage extends JFrame {
         initializeComponents();
     }
 
-     /**
+    /**
      * Initializes and arranges UI components including panels, buttons, and labels.
      */
     public void initializeComponents() {
@@ -92,7 +95,7 @@ public class CashierPage extends JFrame {
         contentPanel.add(payButton);
 
         leftPanel.add(contentPanel, BorderLayout.SOUTH);
-        
+
         /**
          * Action listener for processing payment when the pay button is clicked.
          * It inserts a transaction into the database and clears the current order.
@@ -136,7 +139,7 @@ public class CashierPage extends JFrame {
         //////////////////// CENTER PANEL (Menu Buttons) ////////////////////
         String[] productTypes = new String[12];
         String[] productTypesReadable = new String[12];
-         /**
+        /**
          * Retrieves product types from the database and stores them in arrays.
          */
         ResultSet rs = db.query(
@@ -235,7 +238,7 @@ public class CashierPage extends JFrame {
         JScrollPane navScroll = new JScrollPane(navList);
         rightPanel.add(navScroll, BorderLayout.CENTER);
 
-         /**
+        /**
          * Handles navigation actions when an option is selected.
          */
         // Add ListSelectionListener for navigation
@@ -287,8 +290,10 @@ public class CashierPage extends JFrame {
 
         add(mainPanel);
     }
-     /**
-     * Handles the logout process by closing all open frames and returning to the job selection page.
+
+    /**
+     * Handles the logout process by closing all open frames and returning to the
+     * job selection page.
      */
     // Logout handler
     private void handleLogout() {
@@ -300,7 +305,7 @@ public class CashierPage extends JFrame {
         jobSelectionFrame.setVisible(true);
     }
 
-     /**
+    /**
      * The main method for launching the Cashier Page.
      * 
      * @param args Command-line arguments (unused).
