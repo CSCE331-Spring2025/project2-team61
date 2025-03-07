@@ -4,12 +4,32 @@ import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+/**
+ * The {@code ReportPanel} class represents a dashboard panel that displays 
+ * key business metrics including inventory levels, recent orders, and sales trends.
+ * 
+ * This panel consists of:
+ * - Graphs showing inventory levels, top-selling drinks, and daily sales trends.
+ * - Tables displaying low-supply items and recent orders.
+ * 
+ * It queries the database to fetch and visualize data dynamically.
+ * 
+ * @author Luke Conran
+ * @author Kamryn Vogel
+ * @author Christian Fadal
+ * @author Macsen Casaus
+ * @author Surada Suwansathit
+ */
 
 class ReportPanel extends JPanel {
     private TableOne tableOne; // Reference to the low supply table
     private TableTwo tableTwo; // Reference to the recent order table
     Db db;
 
+    /**
+     * Constructs the {@code ReportPanel} and initializes the layout.
+     * It organizes graphs at the top and tables at the bottom.
+     */
     public ReportPanel() {
         db = new Db();
         setLayout(new BorderLayout());
@@ -55,10 +75,22 @@ class ReportPanel extends JPanel {
         tableOne.updateLowSupplyTable(itemNames, inventoryCounts);
     }
 
+    /**
+     * Updates the low-supply table with new inventory data.
+     * 
+     * @param itemNames       A list of item names.
+     * @param inventoryCounts A list of corresponding inventory quantities.
+     */
     public void updateLowSupplyTable(ArrayList<String> itemNames, ArrayList<Integer> inventoryCounts) {
         tableOne.updateLowSupplyTable(itemNames, inventoryCounts);
     }
-
+    /**
+     * Updates the recent orders table with new transaction data.
+     * 
+     * @param items          A list of item names purchased.
+     * @param prices         A list of item prices.
+     * @param paymentMethods A list of payment methods used.
+     */
     public void updateRecentOrders(ArrayList<String> items, ArrayList<Double> prices,
             ArrayList<String> paymentMethods) {
         if (tableTwo != null) { // Prevent NullPointerException
@@ -71,7 +103,9 @@ class ReportPanel extends JPanel {
     class GraphOne extends JPanel {
         private ArrayList<String> itemNames;
         private ArrayList<Integer> inventoryCounts;
-
+        /**
+     * The {@code GraphOne} class visualizes the inventory levels using a bar chart.
+     */
         public GraphOne(Db db) {
             this.itemNames = new ArrayList<>();
             this.inventoryCounts = new ArrayList<>();
@@ -150,7 +184,9 @@ class ReportPanel extends JPanel {
             }
         }
     }
-
+    /**
+     * The {@code GraphTwo} class displays the top 3 best-selling drinks.
+     */
     class GraphTwo extends JPanel {
         private JTable topDrinksTable;
         private DefaultTableModel tableModel;
@@ -191,7 +227,9 @@ class ReportPanel extends JPanel {
             }
         }
     }
-
+    /**
+     * The {@code GraphThree} class plots daily sales trends.
+     */
     class GraphThree extends JPanel {
         private ArrayList<String> days;
         private ArrayList<Double> totalSales;
@@ -266,7 +304,9 @@ class ReportPanel extends JPanel {
             }
         }
     }
-
+    /**
+     * The {@code TableOne} class displays items with low inventory (≤ 50).
+     */
     class TableOne extends JPanel {
         private JTable lowSupplyTable;
         private DefaultTableModel tableModel;
@@ -307,7 +347,9 @@ class ReportPanel extends JPanel {
             }
         }
     }
-
+    /**
+     * The {@code TableTwo} class displays the five most recent orders.
+     */
     class TableTwo extends JPanel {
         private JTable recentOrdersTable;
         private DefaultTableModel tableModel;
