@@ -4,12 +4,38 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * The {@code ZReportPanel} class represents a panel that generates and displays the Z-Report.
+ * The Z-Report provides a daily summary of transactions, including sales, tax calculations,
+ * payment methods, and adjustments (returns, voids, discards).
+ * 
+ * Features:
+ * - Allows users to view a Z-Report for a specific date.
+ * - Calculates net revenue, sales tax, and total sales including tax.
+ * - Provides an option to close the day, reset daily totals, and print the Z-Report.
+ * 
+ * This panel is typically used in manager interfaces to monitor daily sales and close the business day.
+ * 
+ * @author Luke Conran
+ * @author Kamryn Vogel
+ * @author Christian Fadal
+ * @author Macsen Casaus
+ * @author Surada Suwansathit
+ */
+
 public class ZReportPanel extends JPanel {
     private Connection connection;
     private JTextField dateInputField;
     private JButton closeDayButton;
     private JTextArea reportSummaryArea;
     private static final double TAX_RATE = 8.25; // Tax rate as percentage
+
+    /**
+     * Constructs a {@code ZReportPanel} with the specified database connection.
+     * Initializes UI components and loads the Z-Report for the current date.
+     * 
+     * @param connection The database connection used to fetch Z-Report data.
+     */
 
     public ZReportPanel(Connection connection) {
         this.connection = connection;
@@ -71,6 +97,12 @@ public class ZReportPanel extends JPanel {
         loadZReportData(dateInputField.getText());
     }
 
+    /**
+     * Loads the Z-Report data for the given date.
+     * This method retrieves and displays sales totals, payment breakdowns, and adjustments.
+     * 
+     * @param selectedDate The date for which the Z-Report should be generated (YYYY-MM-DD format).
+     */
     // Load Z-Report data without hourly breakdown
     public void loadZReportData(String selectedDate) {
         // System.out.println("Loading Z-Report for date: " + selectedDate);
@@ -92,6 +124,13 @@ public class ZReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Generates a comprehensive daily summary, including total sales, tax calculations,
+     * and a breakdown of payment methods.
+     * 
+     * @param selectedDate The date for which the summary should be generated.
+     * @throws SQLException If a database access error occurs.
+     */
     // Generate a comprehensive daily summary with tax calculation
     private void generateDailySummary(String selectedDate) throws SQLException {
         // Get daily totals
@@ -169,6 +208,10 @@ public class ZReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Displays a confirmation dialog before closing the day.
+     * If confirmed, it triggers the process to finalize the Z-Report.
+     */
     // Confirm before closing the day
     private void confirmAndCloseDay() {
         String selectedDate = dateInputField.getText();
@@ -188,6 +231,11 @@ public class ZReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Closes the day by finalizing the Z-Report and resetting daily totals.
+     * 
+     * @param selectedDate The date for which the Z-Report is being finalized.
+     */
     // Close the day and reset totals
     private void closeDay(String selectedDate) {
         try {
