@@ -14,7 +14,7 @@ $(SRC_DIR)/%.class: $(SRC_DIR)/%.java
 	javac $<
 
 docs: $(SRC_FILES)
-	javadoc -d docs *.java	
+	javadoc -d ../docs *.java	
 
 clean:
 	rm -f $(SRC_DIR)/*.class
