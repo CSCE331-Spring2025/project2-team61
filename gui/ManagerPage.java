@@ -7,6 +7,16 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.util.ArrayList;
 
+/**
+ * This class handles the Manager page on the gui.
+ * It is reponsible for displaying and manageing each tab.
+ *
+ * @author Luke Conran
+ * @author Kamryn Vogel
+ * @author Christian Fadal
+ * @author Macsen Casaus
+ * @author Surada Suwansathit
+ */
 public class ManagerPage extends JFrame {
     private JPanel cardPanel;
     private CardLayout cardLayout;
@@ -24,7 +34,11 @@ public class ManagerPage extends JFrame {
 
     private Db db;
 
-    // TODO: pass in db
+    /**
+     * Constructs the manager page given an employee id.
+     *
+     * @param employeeId The employee id of the current person logged in.
+     */
     public ManagerPage(int employeeId) {
         super("Manager Inventory Interface");
         FrameStyle.StyleFrame(this);
@@ -224,7 +238,10 @@ public class ManagerPage extends JFrame {
 
         setVisible(true);
     }
-
+    
+    /**
+     * Displays dialog box with options to add a product.
+     */
     private void showAddProductDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add New Product", true);
         dialog.setLayout(new BorderLayout());
@@ -377,6 +394,15 @@ public class ManagerPage extends JFrame {
         dialog.setVisible(true);
     }
 
+    /**
+     * Adds product to database.
+     *
+     * @param name name of the product
+     * @param price price of the product
+     * @param type type of the product
+     * @param inventory initial inventory of the product
+     * @return whether the database query was successful
+     */
     private boolean addProduct(String name, int price, String type, int inventory) {
         Db db = new Db();
 
@@ -388,6 +414,9 @@ public class ManagerPage extends JFrame {
         return true;
     }
 
+    /**
+     * Creates connection to database.
+     */
     private void connectToDatabase() {
         try {
             connection = DriverManager.getConnection(
@@ -399,6 +428,9 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Refreshes the inventory panel's table.
+     */
     private void loadInventory() {
         tableModel.setRowCount(0); // Clear the table before reloading
         try {
@@ -416,6 +448,9 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Refreshes the price panel's table.
+     */
     private void loadPriceTable() {
         priceTableModel.setRowCount(0); // Clear table before reloading
         try {
@@ -437,6 +472,9 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Loads data for report.
+     */
     private void loadReportData() {
         ArrayList<String> itemNames = new ArrayList<>();
         ArrayList<Integer> inventoryCounts = new ArrayList<>();
@@ -477,8 +515,13 @@ public class ManagerPage extends JFrame {
         }
     }
 
-    // Button Renderer for Inventory "Order More" column
+    /**
+     * Button Renderer for Inventory "Order More" column.
+     */
     class ButtonRenderer extends JButton implements TableCellRenderer {
+        /**
+         * Default constructor, sets text to "Order More".
+         */
         public ButtonRenderer() {
             setText("Order More");
         }
@@ -491,11 +534,18 @@ public class ManagerPage extends JFrame {
         }
     }
 
-    // Button Editor for Inventory "Order More" column
+    /**
+     * Button Editor for Inventory "Order More" column.
+     */
     class ButtonEditor extends DefaultCellEditor {
         private JButton button;
         private int selectedRow;
 
+        /**
+         * Constructor
+         *
+         * @param checkBox checkBox that confirms order more action
+         */
         public ButtonEditor(JCheckBox checkBox) {
             super(checkBox);
             button = new JButton("Order More");
@@ -522,6 +572,12 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Orders more items by updating inventory for products in the database.
+     *
+     * @param itemName name of the item
+     * @param row row of the item in table
+     */
     private void orderMoreItem(String itemName, int row) {
         String input = JOptionPane.showInputDialog(
                 this,
@@ -546,6 +602,12 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Updates inventory in database
+     *
+     * @param itemName name of product to update
+     * @param amountToAdd additional inventory to add
+     */
     private void updateInventoryInDatabase(String itemName, int amountToAdd) {
         try {
             PreparedStatement pstmt = connection.prepareStatement(
@@ -559,8 +621,13 @@ public class ManagerPage extends JFrame {
         }
     }
 
-    // Renderer for Price "Edit Price" button column
+    /**
+     * Renderer for Price "Edit Price" button column.
+     */
     class PriceButtonRenderer extends JButton implements TableCellRenderer {
+        /**
+         * Default constructor, sets to text to "Edit Price"
+         */
         public PriceButtonRenderer() {
             setText("Edit Price");
         }
@@ -573,11 +640,18 @@ public class ManagerPage extends JFrame {
         }
     }
 
-    // Editor for Price "Edit Price" button column
+    /**
+     * Editor for Price "Edit Price" button column.
+     */
     class PriceButtonEditor extends DefaultCellEditor {
         private JButton button;
         private int selectedRow;
 
+        /**
+         * Constructor
+         *
+         * @param checkBox checkBox that confirms change price action
+         */
         public PriceButtonEditor(JCheckBox checkBox) {
             super(checkBox);
             button = new JButton("Edit Price");
@@ -604,6 +678,12 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Edits price of an item in the database based on the entry in price table.
+     *
+     * @param itemName name of the product to update
+     * @param row row of the product in price table
+     */
     private void editPriceItem(String itemName, int row) {
         String input = JOptionPane.showInputDialog(
                 this,
@@ -630,6 +710,12 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Updates price of an product in the database.
+     *
+     * @param itemName name of the product to update
+     * @param newPriceCents new price of the product in cents
+     */
     private void updatePriceInDatabase(String itemName, int newPriceCents) {
         try {
             PreparedStatement pstmt = connection.prepareStatement(
@@ -643,12 +729,18 @@ public class ManagerPage extends JFrame {
         }
     }
 
+    /**
+     * Logs out of manager page and spawn new Job Selection Page
+     */
     private void handleLogout() {
         dispose();
         JFrame jobSelectionFrame = new JobSelectionPage(new Db(), employeeId);
         jobSelectionFrame.setVisible(true);
     }
 
+    /**
+     * Testing main function
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             ManagerPage mp = new ManagerPage(1);
