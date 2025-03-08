@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 
+/**
+ * Panel to report sales of each product over a time interval.
+ */
 public class SalesReport extends JPanel {
     private JTable theSalesReport;
     private DefaultTableModel tableModel;
@@ -12,6 +15,9 @@ public class SalesReport extends JPanel {
     private JTextField dateInputFieldTwo;
     private Db db;
 
+    /**
+     * Default constructor that displays the report.
+     */
     public SalesReport() {
         db = new Db();
         setLayout(new BorderLayout());
@@ -62,6 +68,12 @@ public class SalesReport extends JPanel {
         loadSalesReport("2025-01-01", "2025-02-01");
     }
 
+    /**
+     * Loads sales report data based on time interval.
+     *
+     * @param startTime start of time interval
+     * @param endTime end of time interval
+     */
     public void loadSalesReport(String startTime, String endTime) {
         tableModel.setRowCount(0); // Clear previous data
 

@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 
+/**
+ * Panel to display the use of products.
+ */
 public class ProductUsePanel extends JPanel {
     private Connection connection;
     private JTextField timeStartField;
@@ -13,6 +16,11 @@ public class ProductUsePanel extends JPanel {
     private JTextField dateField;
     private JTable ProductUseTable;
 
+    /**
+     * Constructor given a database connection.
+     *
+     * @param connection database connection
+     */
     public ProductUsePanel(Connection connection) {
         this.connection = connection;
         setLayout(new BorderLayout());
@@ -82,6 +90,13 @@ public class ProductUsePanel extends JPanel {
 
     }
 
+    /**
+     * Loads product use data from the database given time interval and date.
+     *
+     * @param startTime start of time interval
+     * @param endTime end of time interval
+     * @param date day of inspection
+     */
     public void loadProduceUseData(String startTime, String endTime, String date) {
 
         // System.out.println("Loading Product Usage");
